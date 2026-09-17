@@ -1,8 +1,7 @@
 # 41934-Advanced-BIM-Group-16
-s253184 &amp; s263677
+Amalie Midbøe Pallesen (s253184)
+Julie Søfting Tovslid (s263677)
 
-
-# A1 Forensic BIM
 
 ## Group
 
@@ -12,4 +11,8 @@ Group 16
 
 Indoor Climate
 
-## A1.1 Identified Issues
+## About this repository
+
+This repository contains the group's work throughout the 41934 Advanced BIM course. 
+The repository will be used to collect and document the group's assignments and 
+deliverables during the course.
