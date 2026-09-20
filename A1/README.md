@@ -41,6 +41,8 @@ The script:
 
 The rooms and room numbers were successfully identified. However, no temperature values were found, leaving the temperature column in the CSV file empty.
 
+There were further investigated in object information whether any temperature data had been manually assigned within the property sets. This was checked both for IfcSpace objects and IfcAirTerminalType, which typically indicate the supply-air conditions. No indoor temperature information was found in either location for the building or its HVAC system.
+
 Because the temperature values are not available, they cannot be compared with the requirements in DS/EN 16798-1 Category II.
 
 ## Potential Solutions
@@ -52,12 +54,12 @@ This would improve the traceability between the design analysis and the model.
 
 #### Modelling Perspective
 
-Temperature-related data could be added to the relevant IfcSpace objects through appropriate property sets.
+Temperature-related data could be added to the relevant IfcSpace objects through appropriate property sets, as Pset_SpacheThermalRequirements and/or Pset_SpaceThermalLoad.
 
 This would make it possible to extract the room temperatures directly from the IFC model and compare them with the temperature limits defined in DS/EN 16798-1 Category II.
 
 ## Conclusion
 
-The investigation shows that the IFC model contains information about the building spaces, but no temperature values were found in the investigated IfcSpace properties.
+The investigation shows that the IFC model contains information about the building spaces, but no temperature values were found in the investigated IfcSpace and IfcAirTerminalType properties.
 
 As a result, the reported compliance with DS/EN 16798-1 Category II cannot be directly verified using the temperature information available in the IFC model. The project claim is therefore documented in the MEP report, but the necessary temperature data for independently checking the claim is not available through the investigated IFC properties.
