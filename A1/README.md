@@ -19,7 +19,7 @@ To verify the project claim, the room temperatures in the IFC model should be co
 
 However, no temperature values were found in the investigated IfcSpace properties. The IFC model therefore does not contain the temperature data needed to perform this comparison and verify the claim.
 
-### Cause of the Issue
+#### Cause of the Issue
 
 The issue is primarily considered a modelling issue.
 
@@ -44,13 +44,13 @@ The rooms and room numbers were successfully identified. However, no temperature
 Because the temperature values are not available, they cannot be compared with the requirements in DS/EN 16798-1 Category II.
 
 ## Potential Solutions
-### Design Perspective
+#### Design Perspective
 
 The indoor climate analysis could provide a clearer connection between the reported temperature performance and the corresponding rooms in the BIM model.
 
 This would improve the traceability between the design analysis and the model.
 
-### Modelling Perspective
+#### Modelling Perspective
 
 Temperature-related data could be added to the relevant IfcSpace objects through appropriate property sets.
 
