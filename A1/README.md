@@ -6,39 +6,55 @@
 
 Indoor Climate
 
-## Identified issues
-
-During the investigation of the indoor climate data in the IFC model, no temperature values were found in the investigated properties associated with the IfcSpace objects.
-
-This creates an issue because the IFC model does not contain directly accessible temperature data that can be used to verify the indoor climate performance reported in the project documentation.
 
 ## Project Claim
 
-The MEP report states that the indoor climate was evaluated according to 
-DS/EN 16798-1 Category II.
+The MEP report claims that the indoor temperatures in the evaluated rooms comply with the temperature limits defined for DS/EN 16798-1 Category II.
 
-The report states that 29 rooms were evaluated, of which 24 achieved 
-100% compliance, while the remaining five rooms had a minimum compliance 
-of 99.7%.
+Source: Renovation of Building 308 – Part D MEP Report, Indoor Climate Performance, page 18.
 
-**Source:** Renovation of Building 308 – Part D MEP Report, Indoor Climate 
-Performance, page 18.
+## Identified issues
+
+To verify the project claim, the room temperatures in the IFC model should be compared with the temperature requirements for DS/EN 16798-1 Category II.
+
+However, no temperature values were found in the investigated IfcSpace properties. The IFC model therefore does not contain the temperature data needed to perform this comparison and verify the claim.
+
+### Cause of the Issue
+
+The issue is primarily considered a modelling issue.
+
+The indoor climate performance is documented in the MEP report, but the corresponding temperature data is not available in the investigated IfcSpace properties in the IFC model.
+
+This creates a gap between the indoor climate analysis presented in the report and the information available in the BIM model.
+
 
 ## Investigation
 
-The IFC model was investigated using Python and IfcOpenShell to determine whether temperature information is available in the model and can be used to verify the reported indoor climate performance.
+The IFC model was investigated using Python and IfcOpenShell.
 
-The script extracts all IfcSpace objects from the IFC model and searches their associated property sets for temperature-related properties. For each space, the room name, room number, and available temperature value are extracted and exported to a CSV file.
+The script:
 
-The analysis successfully identified the spaces and their corresponding room numbers. However, no temperature values were found for the investigated IfcSpace objects, leaving the temperature column in the CSV file empty.
+- extracts all IfcSpace objects from the model,
+- identifies the room name and room number,
+- searches the associated property sets for temperature-related properties,
+- exports the results to a CSV file.
 
-Therefore, the temperature data required to directly verify the indoor climate performance stated in the MEP report could not be retrieved from the IFC model.
+The rooms and room numbers were successfully identified. However, no temperature values were found, leaving the temperature column in the CSV file empty.
 
-## Possible Solutions
+Because the temperature values are not available, they cannot be compared with the requirements in DS/EN 16798-1 Category II.
 
-Temperature-related indoor climate data could be added to the relevant IfcSpace objects through appropriate property sets. This would allow the indoor climate information in the BIM model to be compared with the results reported in the MEP documentation.
+## Potential Solutions
+### Design Perspective
 
-Alternatively, the indoor climate simulation results could be linked to the corresponding spaces in the IFC model, improving traceability between the BIM model and the indoor climate analysis.
+The indoor climate analysis could provide a clearer connection between the reported temperature performance and the corresponding rooms in the BIM model.
+
+This would improve the traceability between the design analysis and the model.
+
+### Modelling Perspective
+
+Temperature-related data could be added to the relevant IfcSpace objects through appropriate property sets.
+
+This would make it possible to extract the room temperatures directly from the IFC model and compare them with the temperature limits defined in DS/EN 16798-1 Category II.
 
 ## Conclusion
 
