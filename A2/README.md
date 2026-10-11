@@ -66,3 +66,28 @@ The analyst provides the IFC model and defines the check. The ventilation design
 #### See BPMN diagram in folder
 
 
+
+## A2e: Tool Idea
+
+#### Proposed tool
+
+We propose a Python tool using IfcOpenShell to check design supply airflow in offices and meeting rooms against the ventilation criterion stated in the report.
+
+The tool will read IfcSpace identifiers and available room properties and quantities. Supplementary occupancy and airflow data will be linked to the corresponding rooms where required. After checking data completeness and units, it will calculate the required airflow using q_required = 7 × N + 0.7 × A [L/s] and compare it with the design supply airflow.
+
+The output will be a CSV report containing room identifiers, input values, required airflow, design supply airflow and the result of the check. Rooms with missing or invalid inputs will be marked as having insufficient data. The IFC model will remain unchanged.
+
+#### Business and societal value
+
+The tool can reduce repetitive manual calculations and help designers identify airflow shortfalls and missing information before the ventilation design is finalised. Linking each result to an IFC room makes the check traceable and easier to repeat after design changes.
+
+By supporting appropriate ventilation sizing, the tool can contribute to better indoor air quality and occupants’ well-being. It checks a design requirement rather than demonstrating actual indoor climate performance.
+
+See files for BPMN (ventilation_tool)
+
+ADD MARKDOWN!!!!
+
+### Tool BPMN diagram
+
+![Ventilation checking tool](diagrams/Ventilation_tool.svg)
+
