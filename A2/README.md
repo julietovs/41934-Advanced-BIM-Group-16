@@ -1,27 +1,68 @@
+# A2 USE CASE
+
+
+## A2a: About the group
 
 **Group number:** 16  
 **Total Python coding confidence score:** 3  
 **Focus area:** Indoor Climate  
 **Role:** Analyst  
 
-#### Selected building
+## A2b: Identify claim
 
-We have selected **Building #2601**, focusing on the indoor climate performance documented in the MEP report.
+Selected building: #2601
 
-#### Selected claim
+### Claim to check
 
-The MEP report claims that **the indoor temperatures in the evaluated rooms comply with the temperature limits defined for DS/EN 16798-1 Category II**.
+In A1, we investigated the report’s claim that 24 of 29 evaluated rooms achieved 100% Category II thermal comfort compliance during occupied hours, while the remaining five achieved at least 99.7%. However, temperature-related properties in the IFC model were missing or contained zero values, preventing verification using the available model data.
 
-**Source:** Renovation of Building 308 – Part D MEP Report, Indoor Climate Performance, page 18.
+We will therefore investigate a related ventilation claim. The report states that ventilation for offices and meeting rooms is designed using a Category II requirement of 7 L/s per person plus 0.7 L/s per m² of floor area.
 
-We will investigate the same claim as in our A1 Forensic BIM assignment.
+We will check whether the design supply airflow assigned to each office and meeting room meets this stated requirement, using the room area and design occupancy.y.
 
-#### Justification
+Source: Part D – MEP report, Section 5.1, Table 5, p. 6.
 
-This claim is directly relevant to our focus area, **Indoor Climate**, because indoor temperatures affect occupant comfort.
+### Justification
 
-Our A1 investigation identified the rooms in the IFC model, but no temperature values were found in the investigated properties. The claim could therefore not be independently verified using the available IFC data.
+We selected this check because sufficient ventilation is important for indoor air quality. It builds on the data limitations identified in A1 and provides a measurable design requirement to investigate. The tool will compare design supply airflow with the required airflow based on floor area and design occupancy, while identifying missing information that prevents verification. This ventilation check does not independently verify the original thermal comfort claim.
 
-For A2, we will define a workflow for checking the claim by linking the rooms in the BIM model to supporting temperature simulation results and comparing these results with the Category II criteria.
-report.
+## A2c: Use Case
+
+#### How will the claim be checked?
+
+Building on A1, the analyst will review whether sufficient thermal comfort results and occupied-hour information are available. If these data are insufficient, the original claim will be recorded as unverified, and a separate ventilation airflow check will be performed.
+
+The tool will identify offices and meeting rooms through IfcSpace entities and retrieve floor area, design occupancy and design supply airflow. Supplementary project data will be used where required.
+
+The required airflow will be calculated as:
+
+q_required = 7 × N + 0.7 × A [L/s]
+
+where N is the design number of occupants and A is the floor area in m².
+
+After checking room mappings, completeness and units, the tool will compare design supply airflow with the requirement. Results will be classified as meeting the requirement, below the requirement, or having insufficient data. This check does not independently verify thermal comfort.
+
+#### When and in which phase?
+
+The check will be performed during the design phase, before the ventilation design is finalised, and repeated when room areas, occupancy or airflow rates change.
+
+#### Information required
+- Room identification and function.
+- Floor area and design occupancy.
+- Design supply airflow per room.
+- The report’s stated ventilation criterion.
+- Room mappings for supplementary data.
+
+The initial thermal comfort review also requires relevant results, occupied-hour information and documented comfort criteria.
+
+#### BIM purpose and related use case
+
+The primary purpose is Analyse – Validate, supported by Gather and Communicate. The use case is adapted from Code Validation to check room-level ventilation airflow against the criterion stated in the report.
+
+#### Process and information exchange
+
+The analyst provides the IFC model and defines the check. The ventilation designer supplies missing occupancy or airflow data. The Python tool reads room data, links supplementary inputs, calculates required airflow and exports a results report. The analyst reviews the findings and communicates discrepancies or missing information to the ventilation designer.
+
+#### See BPMN diagram in folder
+
 
