@@ -14,5 +14,5 @@ Indoor Climate
 
 ## About this repository
 
-This repository contains the group's work throughout the 41934 Advanced BIM course. 
-The repository will be used to collect and document the group's assignments during the course.
+This repository contains the groups work throughout the 41934 Advanced BIM course. 
+The repository will be used to collect and document the groups assignments during the course.
