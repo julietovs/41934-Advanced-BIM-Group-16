@@ -148,7 +148,7 @@ These learning needs will be added to the course Learning Bank. Rooms with insuf
 
 We propose releasing the developed Python tool under the MIT License. 
 
-The MIT License is a permissive open-source software licence that allows others to use, modify, distribute and reuse the code with minimal restrictions, provided that the original copyright notice and licence text are included (Source: [https://opensource.org/license/MIT](https://tlo.mit.edu/understand-ip/exploring-mit-open-source-license-comprehensive-guide))). MIT is an appropriate tool because: 
+The MIT License is a permissive open-source software licence that allows others to use, modify, distribute and reuse the code with minimal restrictions, provided that the original copyright notice and licence text are included ([Source](https://tlo.mit.edu/understand-ip/exploring-mit-open-source-license-comprehensive-guide)). MIT is an appropriate tool because: 
 - It encourages collaboration and sharing of OpenBIM tools
 - It allows other students and users to adapt and improve the tool
 - It is compatible with the open-source work method
