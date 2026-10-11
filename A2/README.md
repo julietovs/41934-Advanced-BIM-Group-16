@@ -1,4 +1,5 @@
-# A2 USE CASE
+# A2 USE CASE - Ventilation Airflow Validation Tool
+This repositpry documents the development of a BIM use case and proposed IfcOpenShell-based tool for validating ventilation airflow requirements in office and meeting rooms in Building #2601
 
 
 ## A2a: About the group
@@ -57,19 +58,34 @@ The initial thermal comfort review also requires relevant results, occupied-hour
 
 #### BIM purpose and related use case
 
-The primary purpose is Analyse – Validate, supported by Gather and Communicate. The use case is adapted from Code Validation to check room-level ventilation airflow against the criterion stated in the report.
+The primary purpose is **Analyse – Validate**, as the tool evaluates whether ventilation airflow requirements are satisfied. Supporting purposes are:
+- **Gather:** Extract room and ventilation data from the IFC model
+- Calculate required airflow and compare against design airflow
+- **Communicate:** produce a report highlighting compliant and non-compliant rooms.
+
+The use case is adapted from Code Validation to check room-level ventilation airflow against the criterion stated in the report.
+
 
 #### Process and information exchange
 
 The analyst provides the IFC model and defines the check. The ventilation designer supplies missing occupancy or airflow data. The Python tool reads room data, links supplementary inputs, calculates required airflow and exports a results report. The analyst reviews the findings and communicates discrepancies or missing information to the ventilation designer.
 
-#### See BPMN diagram in folder
-
 ## A2d: Scope the use case
 
-The proposed Python/IfcOpenShell tool will automate the ventilation airflow check. Its scope includes extracting and matching room data, checking completeness and units, calculating required airflow, comparing it with design supply airflow, and exporting room-level results. Rooms with insufficient data will be flagged.
+The proposed Python/IfcOpenShell tool will automate the following tasks:
+1. Read room data from IFC
+2. Identify offices and meeting rooms
+3. Extract floor area
+4. Link supplementary occupancy data
+5. Link supplementary airflow data
+6. Calculate required airflow
+7. Compare design and required airflow
+8. Export a compliance report. Rooms with insufficient data will be flagged in the report.
 
-These tasks are highlighted in blue in the scoped BPMN diagram. Selecting the claim, providing supplementary data and reviewing the findings remain outside the tool’s scope.
+These tasks are highlighted in blue in the scoped BPMN diagram: 
+- Selecting the claim
+- Providing supplementary data
+- Reviewing the findings remain outside the tool’s scope
 
 ## A2e: Tool Idea
 
@@ -91,11 +107,21 @@ See files for BPMN (ventilation_tool)
 
 FIX MARKDOWN!!!!
 
+#### IFC Classes Used
+The tool primarily checks: 
+- IfcSpace
+- IfcPropertySet
+- IfcElementQuantity
+- Qto_SpaceBaseQuantities
+Additional supplementary data may be linked using room identifiers
+
 #### Tool BPMN diagram
 
-A2/Ventilation_tool.svg 
 <img width="1710" height="583" alt="image" src="https://github.com/user-attachments/assets/0b4a99d2-e4c9-4863-abde-6a5aeb7fe75c" />
 
+The BPMN diagram above shows the final manual for the use case. The files can be found
+- svg
+- pbmn
 
 ## A2f: Information Requirements
 
@@ -119,3 +145,12 @@ These learning needs will be added to the course Learning Bank. Rooms with insuf
 
 
 ## A2g: Software Licence
+
+We propose releasing the developed Python tool under the MIT License. 
+
+The MIT License is a permissive open-source software licence that allows others to use, modify, distribute and reuse the code with minimal restrictions, provided that the original copyright notice and licence text are included https://opensource.org/license/MIT. MIT is an appropriate tool because: 
+- It encourages collaboration and sharing of OpenBIM tools
+- It allows other students and users to adapt and improve the tool
+- It is compatible with the open-source work method
+- It is simple and has many users
+- 
