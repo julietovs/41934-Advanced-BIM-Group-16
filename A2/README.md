@@ -93,7 +93,8 @@ FIX MARKDOWN!!!!
 
 #### Tool BPMN diagram
 
-![Ventilation checking tool](diagrams/Ventilation_tool.svg)   ????
+![Ventilation checking tool](diagrams/Ventilation_tool.svg)  
+<img width="1710" height="583" alt="image" src="https://github.com/user-attachments/assets/0b4a99d2-e4c9-4863-abde-6a5aeb7fe75c" />
 
 
 ## A2f: Information Requirements
