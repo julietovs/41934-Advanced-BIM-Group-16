@@ -103,10 +103,6 @@ The tool can reduce repetitive manual calculations and help designers identify a
 
 By supporting appropriate ventilation sizing, the tool can contribute to better indoor air quality and occupants’ well-being. It checks a design requirement rather than demonstrating actual indoor climate performance.
 
-See files for BPMN (ventilation_tool)
-
-FIX MARKDOWN!!!!
-
 #### IFC Classes Used
 The tool primarily checks: 
 - IfcSpace
@@ -120,8 +116,8 @@ Additional supplementary data may be linked using room identifiers
 <img width="1710" height="583" alt="image" src="https://github.com/user-attachments/assets/0b4a99d2-e4c9-4863-abde-6a5aeb7fe75c" />
 
 The BPMN diagram above shows the final manual for the use case. The files can be found
-- [BPMN](/A2/Ventilation_tool.bpmn)
-- [SVG](/A2/Ventilation_tool.svg)
+- [BPMN](/A2/IMG/Ventilation_tool.bpmn)
+- [SVG](/A2/IMG/Ventilation_tool.svg)
 
 ## A2f: Information Requirements
 
