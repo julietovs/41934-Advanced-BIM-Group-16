@@ -154,4 +154,4 @@ The MIT License is a permissive open-source software licence that allows others 
 - It is compatible with the open-source work method
 - It is simple and has many users
 
-The tool will be developed using open-source software including Blender and IfcOpenShell, while the source code for the ventilation checking tool itself will be released under the MIT License. See the license in (A2/MITLicense). 
+The tool will be developed using open-source software including Blender and IfcOpenShell, while the source code for the ventilation checking tool itself will be released under the MIT License. See the license in [MIT License](A2/MITLicense). 
