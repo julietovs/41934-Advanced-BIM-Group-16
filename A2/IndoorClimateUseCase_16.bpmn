@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_Climate" targetNamespace="https://group16.example/indoor-climate" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Pool" name="Indoor Climate Check | Group 16" processRef="Process_1" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Tool" name="Python Tool / IfcOpenShell">
+        <bpmn:flowNodeRef>Extract</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Match</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Export</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>RoomCheck</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Designer" name="Ventilation Designer">
+        <bpmn:flowNodeRef>Provide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Receive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Analyst" name="Analyst">
+        <bpmn:flowNodeRef>Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Select</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ReviewData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Comfort</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Refer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndComfort</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Limit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Review</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Communicate</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start" name="start">
+      <bpmn:outgoing>f1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Select" name="Select claim and define criteria">
+      <bpmn:incoming>f1</bpmn:incoming>
+      <bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="ReviewData" name="Inspect IFC and review thermal comfort data">
+      <bpmn:incoming>f2</bpmn:incoming>
+      <bpmn:outgoing>f3</bpmn:outgoing>
+      <bpmn:ioSpecification id="ReviewData_IO">
+        <bpmn:dataInput id="d1_port" />
+        <bpmn:inputSet id="ReviewData_Inputs">
+          <bpmn:dataInputRefs>d1_port</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="ReviewData_Outputs" />
+      </bpmn:ioSpecification>
+      <bpmn:property id="Property_1om2pds" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="d1">
+        <bpmn:sourceRef>IFC</bpmn:sourceRef>
+        <bpmn:targetRef>Property_1om2pds</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Comfort" name="Sufficient thermal comfort data?">
+      <bpmn:incoming>f3</bpmn:incoming>
+      <bpmn:outgoing>f4</bpmn:outgoing>
+      <bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Refer" name="Refer for separate thermal comfort verification">
+      <bpmn:incoming>f4</bpmn:incoming>
+      <bpmn:outgoing>f5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndComfort">
+      <bpmn:incoming>f5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Limit" name="Record limitation and select ventilation check">
+      <bpmn:incoming>f6</bpmn:incoming>
+      <bpmn:outgoing>f7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="Extract" name="Extract offices and meeting rooms: IfcSpace">
+      <bpmn:incoming>f7</bpmn:incoming>
+      <bpmn:outgoing>f8</bpmn:outgoing>
+      <bpmn:ioSpecification id="Extract_IO">
+        <bpmn:dataInput id="d2_port" />
+        <bpmn:inputSet id="Extract_Inputs">
+          <bpmn:dataInputRefs>d2_port</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="Extract_Outputs" />
+      </bpmn:ioSpecification>
+      <bpmn:property id="Property_07r9ocu" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="d2">
+        <bpmn:sourceRef>IFC</bpmn:sourceRef>
+        <bpmn:targetRef>Property_07r9ocu</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:task id="Provide" name="Provide available design occupancy and supply airflow">
+      <bpmn:incoming>f8</bpmn:incoming>
+      <bpmn:outgoing>f9</bpmn:outgoing>
+      <bpmn:ioSpecification id="Provide_IO">
+        <bpmn:dataOutput id="d4_port" />
+        <bpmn:inputSet id="Provide_Inputs" />
+        <bpmn:outputSet id="Provide_Outputs">
+          <bpmn:dataOutputRefs>d4_port</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataOutputAssociation id="d4">
+        <bpmn:sourceRef>d4_port</bpmn:sourceRef>
+        <bpmn:targetRef>RoomData</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:serviceTask id="Match" name="Read and match room data">
+      <bpmn:incoming>f9</bpmn:incoming>
+      <bpmn:outgoing>f10</bpmn:outgoing>
+      <bpmn:ioSpecification id="Match_IO">
+        <bpmn:dataInput id="d5_port" />
+        <bpmn:inputSet id="Match_Inputs">
+          <bpmn:dataInputRefs>d5_port</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="Match_Outputs" />
+      </bpmn:ioSpecification>
+      <bpmn:property id="Property_02anwvr" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="d5">
+        <bpmn:sourceRef>RoomData</bpmn:sourceRef>
+        <bpmn:targetRef>Property_02anwvr</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Export" name="Export results for all rooms">
+      <bpmn:incoming>f11</bpmn:incoming>
+      <bpmn:outgoing>f12</bpmn:outgoing>
+      <bpmn:ioSpecification id="Export_IO">
+        <bpmn:dataOutput id="d6_port" />
+        <bpmn:inputSet id="Export_Inputs" />
+        <bpmn:outputSet id="Export_Outputs">
+          <bpmn:dataOutputRefs>d6_port</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataOutputAssociation id="d6">
+        <bpmn:sourceRef>d6_port</bpmn:sourceRef>
+        <bpmn:targetRef>Results</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:subProcess id="RoomCheck" name="Check each room (repeat for all selected rooms)">
+      <bpmn:incoming>f10</bpmn:incoming>
+      <bpmn:outgoing>f11</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" />
+      <bpmn:startEvent id="RoomStart">
+        <bpmn:outgoing>r1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:exclusiveGateway id="Complete" name="Sufficient valid data?">
+        <bpmn:incoming>r1</bpmn:incoming>
+        <bpmn:outgoing>r2</bpmn:outgoing>
+        <bpmn:outgoing>r3</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="Missing" name="Record insufficient data">
+        <bpmn:incoming>r2</bpmn:incoming>
+        <bpmn:outgoing>r7</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:serviceTask id="Calculate" name="Calculate required airflow: 7N + 0.7A [L/s]">
+        <bpmn:incoming>r3</bpmn:incoming>
+        <bpmn:outgoing>r4</bpmn:outgoing>
+        <bpmn:ioSpecification id="Calculate_IO">
+          <bpmn:dataInput id="d3_port" />
+          <bpmn:inputSet id="Calculate_Inputs">
+            <bpmn:dataInputRefs>d3_port</bpmn:dataInputRefs>
+          </bpmn:inputSet>
+          <bpmn:outputSet id="Calculate_Outputs" />
+        </bpmn:ioSpecification>
+        <bpmn:property id="Property_1htcby2" name="__targetRef_placeholder" />
+        <bpmn:dataInputAssociation id="d3">
+          <bpmn:sourceRef>Criteria</bpmn:sourceRef>
+          <bpmn:targetRef>Property_1htcby2</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Meets" name="Design supply airflow meets requirement?">
+        <bpmn:incoming>r4</bpmn:incoming>
+        <bpmn:outgoing>r5</bpmn:outgoing>
+        <bpmn:outgoing>r6</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="Pass" name="Record sufficient airflow">
+        <bpmn:incoming>r5</bpmn:incoming>
+        <bpmn:outgoing>r8</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:serviceTask id="Fail" name="Record insufficient airflow">
+        <bpmn:incoming>r6</bpmn:incoming>
+        <bpmn:outgoing>r9</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Merge">
+        <bpmn:incoming>r7</bpmn:incoming>
+        <bpmn:incoming>r8</bpmn:incoming>
+        <bpmn:incoming>r9</bpmn:incoming>
+        <bpmn:outgoing>r10</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="RoomEnd">
+        <bpmn:incoming>r10</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="r1" sourceRef="RoomStart" targetRef="Complete" />
+      <bpmn:sequenceFlow id="r2" name="No" sourceRef="Complete" targetRef="Missing" />
+      <bpmn:sequenceFlow id="r3" name="Yes" sourceRef="Complete" targetRef="Calculate" />
+      <bpmn:sequenceFlow id="r4" sourceRef="Calculate" targetRef="Meets" />
+      <bpmn:sequenceFlow id="r5" name="Yes" sourceRef="Meets" targetRef="Pass" />
+      <bpmn:sequenceFlow id="r6" name="No" sourceRef="Meets" targetRef="Fail" />
+      <bpmn:sequenceFlow id="r7" sourceRef="Missing" targetRef="Merge" />
+      <bpmn:sequenceFlow id="r8" sourceRef="Pass" targetRef="Merge" />
+      <bpmn:sequenceFlow id="r9" sourceRef="Fail" targetRef="Merge" />
+      <bpmn:sequenceFlow id="r10" sourceRef="Merge" targetRef="RoomEnd" />
+    </bpmn:subProcess>
+    <bpmn:task id="Review" name="Review results and assess ventilation claim">
+      <bpmn:incoming>f12</bpmn:incoming>
+      <bpmn:outgoing>f13</bpmn:outgoing>
+      <bpmn:ioSpecification id="Review_IO">
+        <bpmn:dataInput id="d7_port" />
+        <bpmn:inputSet id="Review_Inputs">
+          <bpmn:dataInputRefs>d7_port</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="Review_Outputs" />
+      </bpmn:ioSpecification>
+      <bpmn:property id="Property_0er3ohp" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="d7">
+        <bpmn:sourceRef>Results</bpmn:sourceRef>
+        <bpmn:targetRef>Property_0er3ohp</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:task id="Communicate" name="Communicate findings">
+      <bpmn:incoming>f13</bpmn:incoming>
+      <bpmn:outgoing>f14</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Receive" name="Review findings and resolve data or design issues">
+      <bpmn:incoming>f14</bpmn:incoming>
+      <bpmn:outgoing>f15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End" name="end">
+      <bpmn:incoming>f15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:dataObjectReference id="IFC" name="IFC model: IfcSpace; properties and quantities" dataObjectRef="IFC_Object" />
+    <bpmn:dataObject id="IFC_Object" />
+    <bpmn:dataObjectReference id="Criteria" name="Report: Category II criteria" dataObjectRef="Criteria_Object" />
+    <bpmn:dataObject id="Criteria_Object" />
+    <bpmn:dataObjectReference id="RoomData" name="Supplementary room data: IDs, occupancy, supply airflow" dataObjectRef="RoomData_Object" />
+    <bpmn:dataObject id="RoomData_Object" />
+    <bpmn:dataObjectReference id="Results" name="Room-level results" dataObjectRef="Results_Object" />
+    <bpmn:dataObject id="Results_Object" />
+    <bpmn:sequenceFlow id="f1" sourceRef="Start" targetRef="Select" />
+    <bpmn:sequenceFlow id="f2" sourceRef="Select" targetRef="ReviewData" />
+    <bpmn:sequenceFlow id="f3" sourceRef="ReviewData" targetRef="Comfort" />
+    <bpmn:sequenceFlow id="f4" name="Yes" sourceRef="Comfort" targetRef="Refer" />
+    <bpmn:sequenceFlow id="f6" name="No" sourceRef="Comfort" targetRef="Limit" />
+    <bpmn:sequenceFlow id="f5" sourceRef="Refer" targetRef="EndComfort" />
+    <bpmn:sequenceFlow id="f7" sourceRef="Limit" targetRef="Extract" />
+    <bpmn:sequenceFlow id="f8" sourceRef="Extract" targetRef="Provide" />
+    <bpmn:sequenceFlow id="f9" sourceRef="Provide" targetRef="Match" />
+    <bpmn:sequenceFlow id="f10" sourceRef="Match" targetRef="RoomCheck" />
+    <bpmn:sequenceFlow id="f11" sourceRef="RoomCheck" targetRef="Export" />
+    <bpmn:sequenceFlow id="f12" sourceRef="Export" targetRef="Review" />
+    <bpmn:sequenceFlow id="f13" sourceRef="Review" targetRef="Communicate" />
+    <bpmn:sequenceFlow id="f14" sourceRef="Communicate" targetRef="Receive" />
+    <bpmn:sequenceFlow id="f15" sourceRef="Receive" targetRef="End" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_1">
+    <bpmndi:BPMNPlane id="Plane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Pool_di" bpmnElement="Pool" isHorizontal="true">
+        <dc:Bounds x="150" y="210" width="2670" height="910" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tool_di" bpmnElement="Tool" isHorizontal="true">
+        <dc:Bounds x="180" y="680" width="2640" height="440" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Designer_di" bpmnElement="Designer" isHorizontal="true">
+        <dc:Bounds x="180" y="510" width="2640" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Analyst_di" bpmnElement="Analyst" isHorizontal="true">
+        <dc:Bounds x="180" y="210" width="2640" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
+        <dc:Bounds x="205" y="310" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="212" y="353" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Select_di" bpmnElement="Select">
+        <dc:Bounds x="280" y="292" width="150" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ReviewData_di" bpmnElement="ReviewData">
+        <dc:Bounds x="465" y="292" width="175" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Comfort_di" bpmnElement="Comfort" isMarkerVisible="true">
+        <dc:Bounds x="685" y="303" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="717" y="316" width="125" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Refer_di" bpmnElement="Refer">
+        <dc:Bounds x="810" y="232" width="180" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndComfort_di" bpmnElement="EndComfort">
+        <dc:Bounds x="1035" y="246" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Limit_di" bpmnElement="Limit">
+        <dc:Bounds x="810" y="350" width="180" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Extract_di" bpmnElement="Extract">
+        <dc:Bounds x="1040" y="725" width="170" height="72" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Provide_di" bpmnElement="Provide">
+        <dc:Bounds x="1250" y="555" width="195" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Match_di" bpmnElement="Match">
+        <dc:Bounds x="1250" y="725" width="195" height="72" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Export_di" bpmnElement="Export">
+        <dc:Bounds x="2455" y="744" width="170" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RoomCheck_di" bpmnElement="RoomCheck" isExpanded="true" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="1490" y="705" width="890" height="345" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RoomStart_di" bpmnElement="RoomStart">
+        <dc:Bounds x="1515" y="828" width="28" height="28" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Complete_di" bpmnElement="Complete" isMarkerVisible="true">
+        <dc:Bounds x="1580" y="817" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1624" y="826" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Missing_di" bpmnElement="Missing">
+        <dc:Bounds x="1680" y="740" width="150" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Calculate_di" bpmnElement="Calculate">
+        <dc:Bounds x="1680" y="880" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Meets_di" bpmnElement="Meets" isMarkerVisible="true">
+        <dc:Bounds x="1900" y="890" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1938" y="886" width="104" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pass_di" bpmnElement="Pass">
+        <dc:Bounds x="2000" y="795" width="145" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Fail_di" bpmnElement="Fail">
+        <dc:Bounds x="2000" y="940" width="145" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Merge_di" bpmnElement="Merge" isMarkerVisible="true">
+        <dc:Bounds x="2180" y="827" width="40" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RoomEnd_di" bpmnElement="RoomEnd">
+        <dc:Bounds x="2276" y="833" width="28" height="28" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="r1_di" bpmnElement="r1">
+        <di:waypoint x="1543" y="842" />
+        <di:waypoint x="1580" y="842" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r2_di" bpmnElement="r2">
+        <di:waypoint x="1605" y="817" />
+        <di:waypoint x="1605" y="770" />
+        <di:waypoint x="1680" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1622" y="748" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r3_di" bpmnElement="r3">
+        <di:waypoint x="1605" y="867" />
+        <di:waypoint x="1605" y="915" />
+        <di:waypoint x="1680" y="915" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1621" y="893" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r4_di" bpmnElement="r4">
+        <di:waypoint x="1850" y="915" />
+        <di:waypoint x="1900" y="915" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r5_di" bpmnElement="r5">
+        <di:waypoint x="1925" y="890" />
+        <di:waypoint x="1925" y="825" />
+        <di:waypoint x="2000" y="825" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1941" y="803" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r6_di" bpmnElement="r6">
+        <di:waypoint x="1925" y="940" />
+        <di:waypoint x="1925" y="970" />
+        <di:waypoint x="2000" y="970" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1942" y="948" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r7_di" bpmnElement="r7">
+        <di:waypoint x="1830" y="770" />
+        <di:waypoint x="2200" y="770" />
+        <di:waypoint x="2200" y="827" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r8_di" bpmnElement="r8">
+        <di:waypoint x="2145" y="825" />
+        <di:waypoint x="2165" y="825" />
+        <di:waypoint x="2165" y="847" />
+        <di:waypoint x="2180" y="847" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r9_di" bpmnElement="r9">
+        <di:waypoint x="2145" y="970" />
+        <di:waypoint x="2200" y="970" />
+        <di:waypoint x="2200" y="867" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="r10_di" bpmnElement="r10">
+        <di:waypoint x="2220" y="847" />
+        <di:waypoint x="2276" y="847" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Review_di" bpmnElement="Review">
+        <dc:Bounds x="2310" y="292" width="170" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Communicate_di" bpmnElement="Communicate">
+        <dc:Bounds x="2520" y="292" width="145" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Receive_di" bpmnElement="Receive">
+        <dc:Bounds x="2520" y="555" width="180" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_di" bpmnElement="End">
+        <dc:Bounds x="2750" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2759" y="615" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IFC_di" bpmnElement="IFC">
+        <dc:Bounds x="500" y="125" width="32" height="42" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="429" y="82" width="177" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Criteria_di" bpmnElement="Criteria">
+        <dc:Bounds x="1750" y="125" width="32" height="42" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1704" y="82" width="129" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RoomData_di" bpmnElement="RoomData">
+        <dc:Bounds x="1280" y="425" width="32" height="42" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1221" y="382" width="153" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Results_di" bpmnElement="Results">
+        <dc:Bounds x="2345" y="125" width="32" height="42" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2317" y="82" width="92" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f1_di" bpmnElement="f1">
+        <di:waypoint x="241" y="328" />
+        <di:waypoint x="280" y="328" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f2_di" bpmnElement="f2">
+        <di:waypoint x="430" y="328" />
+        <di:waypoint x="465" y="328" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f3_di" bpmnElement="f3">
+        <di:waypoint x="640" y="328" />
+        <di:waypoint x="685" y="328" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f4_di" bpmnElement="f4">
+        <di:waypoint x="710" y="303" />
+        <di:waypoint x="710" y="264" />
+        <di:waypoint x="810" y="264" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="726" y="242" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f5_di" bpmnElement="f5">
+        <di:waypoint x="990" y="264" />
+        <di:waypoint x="1035" y="264" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f6_di" bpmnElement="f6">
+        <di:waypoint x="710" y="353" />
+        <di:waypoint x="710" y="386" />
+        <di:waypoint x="810" y="386" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="727" y="364" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f7_di" bpmnElement="f7">
+        <di:waypoint x="990" y="386" />
+        <di:waypoint x="1125" y="386" />
+        <di:waypoint x="1125" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f8_di" bpmnElement="f8">
+        <di:waypoint x="1210" y="761" />
+        <di:waypoint x="1230" y="761" />
+        <di:waypoint x="1230" y="591" />
+        <di:waypoint x="1250" y="591" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f9_di" bpmnElement="f9">
+        <di:waypoint x="1347" y="627" />
+        <di:waypoint x="1347" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f10_di" bpmnElement="f10">
+        <di:waypoint x="1445" y="761" />
+        <di:waypoint x="1490" y="761" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f11_di" bpmnElement="f11">
+        <di:waypoint x="2380" y="780" />
+        <di:waypoint x="2455" y="780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f12_di" bpmnElement="f12">
+        <di:waypoint x="2480" y="744" />
+        <di:waypoint x="2480" y="554" />
+        <di:waypoint x="2395" y="554" />
+        <di:waypoint x="2395" y="364" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f13_di" bpmnElement="f13">
+        <di:waypoint x="2480" y="328" />
+        <di:waypoint x="2520" y="328" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f14_di" bpmnElement="f14">
+        <di:waypoint x="2592" y="364" />
+        <di:waypoint x="2592" y="555" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f15_di" bpmnElement="f15">
+        <di:waypoint x="2700" y="591" />
+        <di:waypoint x="2750" y="591" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d1_di" bpmnElement="d1">
+        <di:waypoint x="516" y="167" />
+        <di:waypoint x="516" y="292" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d2_di" bpmnElement="d2">
+        <di:waypoint x="532" y="146" />
+        <di:waypoint x="1020" y="146" />
+        <di:waypoint x="1020" y="770" />
+        <di:waypoint x="1040" y="767" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d4_di" bpmnElement="d4">
+        <di:waypoint x="1296" y="555" />
+        <di:waypoint x="1296" y="467" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d5_di" bpmnElement="d5">
+        <di:waypoint x="1312" y="446" />
+        <di:waypoint x="1465" y="446" />
+        <di:waypoint x="1465" y="820" />
+        <di:waypoint x="1347" y="820" />
+        <di:waypoint x="1347" y="797" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d3_di" bpmnElement="d3">
+        <di:waypoint x="1782" y="146" />
+        <di:waypoint x="1870" y="146" />
+        <di:waypoint x="1870" y="890" />
+        <di:waypoint x="1850" y="903" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d6_di" bpmnElement="d6">
+        <di:waypoint x="2500" y="740" />
+        <di:waypoint x="2500" y="146" />
+        <di:waypoint x="2377" y="146" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="d7_di" bpmnElement="d7">
+        <di:waypoint x="2361" y="167" />
+        <di:waypoint x="2361" y="292" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
