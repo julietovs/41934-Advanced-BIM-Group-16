@@ -18,7 +18,7 @@ In A1, we investigated the report’s claim that 24 of 29 evaluated rooms achiev
 
 We will therefore investigate a related ventilation claim. The report states that ventilation for offices and meeting rooms is designed using a Category II requirement of 7 L/s per person plus 0.7 L/s per m² of floor area.
 
-We will check whether the design supply airflow assigned to each office and meeting room meets this stated requirement, using the room area and design occupancy.y.
+We will check whether the design supply airflow assigned to each office and meeting room meets this stated requirement, using the room area and design occupancy.
 
 Source: Part D – MEP report, Section 5.1, Table 5, p. 6.
 
@@ -65,7 +65,11 @@ The analyst provides the IFC model and defines the check. The ventilation design
 
 #### See BPMN diagram in folder
 
+## A2d: Scope the use case
 
+The proposed Python/IfcOpenShell tool will automate the ventilation airflow check. Its scope includes extracting and matching room data, checking completeness and units, calculating required airflow, comparing it with design supply airflow, and exporting room-level results. Rooms with insufficient data will be flagged.
+
+These tasks are highlighted in blue in the scoped BPMN diagram. Selecting the claim, providing supplementary data and reviewing the findings remain outside the tool’s scope.
 
 ## A2e: Tool Idea
 
@@ -85,9 +89,32 @@ By supporting appropriate ventilation sizing, the tool can contribute to better 
 
 See files for BPMN (ventilation_tool)
 
-ADD MARKDOWN!!!!
+FIX MARKDOWN!!!!
 
-### Tool BPMN diagram
+#### Tool BPMN diagram
 
-![Ventilation checking tool](diagrams/Ventilation_tool.svg)
+![Ventilation checking tool](diagrams/Ventilation_tool.svg)   ????
 
+
+## A2f: Information Requirements
+
+The following information is required for the ventilation check. The IFC locations are possible sources; their availability in the selected model must be confirmed.
+
+| Information required | Possible location or source | Available? | Planned extraction |
+|---|---|---|---|
+| Room identification | IfcSpace.GlobalId, Name and LongName | IfcSpace identified in A1; room identifiers to be checked. | model.by_type("IfcSpace") and direct attribute access. |
+| Room function | Room names, classifications or properties associated with IfcSpace | To be checked. | Inspect attributes and property sets to identify offices and meeting rooms. |
+| Floor area [m²] | Qto_SpaceBaseQuantities.NetFloorArea or an equivalent documented quantity | To be checked. | get_psets(space, qtos_only=True). |
+| Design occupancy | Pset_SpaceOccupancyRequirements.OccupancyNumber, project properties or supplementary CSV data | To be checked. | get_psets(space), or link CSV data using room identifiers. |
+| Design supply airflow [L/s] | Documented room properties or supplementary ventilation schedules | To be checked. | Inspect properties or import room-level CSV data. |
+| Units | IFC unit definitions, property-specific units and external file documentation | To be checked. | Identify and convert units to m² and L/s. |
+| Ventilation criterion | MEP report, Section 5.1, Table 5, p. 6 | Available in the report. | Apply q_required = 7 × N + 0.7 × A [L/s]. |
+
+#### Learning needs
+
+We need to learn how to extract property and quantity sets, identify the relevant design values, link supplementary data to IFC rooms, handle missing or invalid inputs, and convert units.
+
+These learning needs will be added to the course Learning Bank. Rooms with insufficient information will be reported as unverifiable rather than assigned undocumented assumptions.
+
+
+## A2g: Software Licence
