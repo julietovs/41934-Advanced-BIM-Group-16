@@ -1,0 +1,52 @@
+import ifcopenshell
+import csv
+import os
+
+# --- 1. Load your IFC file ---
+model_path = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/AssignmentAddingCode.ifc"
+model = ifcopenshell.open(model_path)
+
+# --- 2. Define output folder and file ---
+output_folder = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
+os.makedirs(output_folder, exist_ok=True)
+
+output_file = output_folder + "/IndoorClimate.csv"
+
+# --- 3. Create CSV file ---
+with open(output_file, "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["Room Name", "Room Number", "Temperature (°C)"])
+
+    # --- 4. Loop through all spaces ---
+    for space in model.by_type("IfcSpace"):
+
+        room_name = space.LongName or ""
+        room_number = space.Name or ""
+        temperature_value = None
+
+        # --- 5. Search property sets for temperature ---
+        for definition in space.IsDefinedBy:
+            if definition.is_a("IfcRelDefinesByProperties"):
+                pset = definition.RelatingPropertyDefinition
+
+                if hasattr(pset, "HasProperties"):
+                    for prop in pset.HasProperties:
+
+                        # Common temperature property names
+                        if prop.Name.lower() in [
+                            "temperature",
+                            "indoor_temperature",
+                            "design_temperature",
+                            "target_temperature",
+                            "room_temperature",
+                            "setpoint_temperature"
+                        ]:
+                            try:
+                                temperature_value = prop.NominalValue.wrappedValue
+                            except:
+                                temperature_value = None
+
+        # --- 6. Write one row per space ---
+        writer.writerow([room_name, room_number, temperature_value])
+
+print("Indoor climate CSV created successfully.")
