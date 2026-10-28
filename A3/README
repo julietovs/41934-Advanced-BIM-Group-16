@@ -1,1 +1,8 @@
-
+Step by step
+1. Copy code 1 from Markdown into Blender -> Scripting
+2. Analyse data given in the csv. file generated from the python console 
+3. If missing data, follow your matching path in the BPMN diagram 
+4. Our matching patch was to import a generated csv file with indoor conditions to blender. Step 4 is then to copy code 2 from Markdown into Blender -> Scripting. 
+5. Now run code 1 again and read the csv file to control that the imported data is now existing in the model 
+6. Control with Danish Standard if values are within the criteria
+7. If not within required values, suggest an improvement or addition for passive or active cooling/heating. 
