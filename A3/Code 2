@@ -1,0 +1,48 @@
+import csv
+import ifcopenshell
+import ifcopenshell.api.pset
+
+IFC_IN  = r"C:/.../AssignmentAddingCode.ifc"
+IFC_OUT = r"C:/.../AssignmentAddingCode_climate.ifc"   # save as a NEW file
+CSV_IN  = r"C:/.../room_climate.csv"
+DELIMITER = ","        # Danish Excel often exports ";" and decimal commas!
+PSET_NAME = "Custom_RoomClimateData"
+
+model = ifcopenshell.open(IFC_IN)
+spaces = {s.Name: s for s in model.by_type("IfcSpace") if s.Name}
+
+def to_float(text):
+    """Return float or None for empty/invalid values (never guess a value)."""
+    try:
+        return float(str(text).strip().replace(",", "."))
+    except ValueError:
+        return None
+
+report = []   # collect problems so the user sees them
+
+with open(CSV_IN, newline="", encoding="utf-8-sig") as f:
+    for row in csv.DictReader(f, delimiter=DELIMITER):
+        key = row["room_number"].strip()
+        space = spaces.get(key)
+        if space is None:
+            report.append((key, "no IfcSpace with this Name"))
+            continue
+
+        values = {
+            "DesignOccupancy": to_float(row["occupancy"]),
+            "DesignSupplyAirflow_Ls": to_float(row["supply_airflow_ls"]),
+            "DesignTemperature_C": to_float(row["temperature_c"]),
+        }
+        missing = [k for k, v in values.items() if v is None]
+        if missing:
+            report.append((key, f"missing/invalid: {missing}"))
+
+        props = {k: v for k, v in values.items() if v is not None}
+        if props:
+            pset = ifcopenshell.api.pset.add_pset(model, product=space, name=PSET_NAME)
+            ifcopenshell.api.pset.edit_pset(model, pset=pset, properties=props)
+
+model.write(IFC_OUT)
+
+for key, msg in report:
+    print(f"{key}: {msg}")
