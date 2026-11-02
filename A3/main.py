@@ -1,34 +1,33 @@
 """Group 16 | A3: ventilation airflow check for IFC spaces.
 
 INSTALL (Command Prompt):
-    py -m pip install ifcopenshell XlsxWriter
+    py -m pip install ifcopenshell
 RUN beside your IFC file:
-    py ventilation_check.py "2601.ifc"
-    py ventilation_check.py "2601.ifc" --data "output/room_inputs.csv"
+    py main.py "2601.ifc"
+    py main.py "2601.ifc" --data "output/room_inputs.csv"
 DEMO (fabricated data; no IFC needed):
-    py ventilation_check.py --demo
+    py main.py --demo
 
-First run creates output/ventilation_results.xlsx, results.csv, and a
-room_inputs.csv template. Fill the template, save it, then run with --data.
+First run creates output/results.csv, ifc_fields.csv, and a
+room_inputs.csv template. Run details and warnings are saved in run_info.txt. Fill the template, save it, then run with --data.
 Existing input templates are NEVER overwritten. All paths are relative to the
 current working directory. The IFC is read only; no geometric area is computed.
 
 Criterion supplied in A2: MEP report, section 5.1, table 5, p.6:
     required supply airflow [L/s] = 7 * occupants + 0.7 * floor area [m2].
 Checks this criterion only, not thermal comfort or measured performance.
-Dependencies: Python 3.9+, IfcOpenShell, XlsxWriter.
+Dependencies: Python 3.9+, IfcOpenShell.
 """
 
 import argparse
 import csv
-import json
 import math
 import re
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-# 1. SETTINGS: adapt only after inspecting the IFC fields in the workbook.
+# 1. SETTINGS: adapt only after inspecting ifc_fields.csv.
 PERSON_RATE = 7.0                 # L/s per person; A2 criterion
 AREA_RATE = 0.7                   # L/s per m2; A2 criterion
 AREA_FIELDS = [
@@ -109,7 +108,7 @@ def read_ifc(path):
         from ifcopenshell.util.element import get_psets
         from ifcopenshell.util.unit import get_property_unit, convert_unit
     except ImportError as exc:
-        raise RuntimeError("Install dependencies: py -m pip install ifcopenshell XlsxWriter") from exc
+        raise RuntimeError("Install dependencies: py -m pip install ifcopenshell") from exc
     model = ifcopenshell.open(str(path))
     # Target unit in a separate in-memory file; the input model is unchanged.
     target_file = ifcopenshell.file(schema="IFC4")
@@ -218,75 +217,41 @@ def evaluate(record, supplemental):
             row["area_source"], row["occupancy_source"], row["flow_source"]]
 
 
-# 5. WRITE RESULTS. Excel is a snapshot: edit input CSV and rerun to update.
-def write_excel(path, rows, inventory, warnings, model_label):
-    try:
-        import xlsxwriter
-    except ImportError as exc:
-        raise RuntimeError("Install XlsxWriter: py -m pip install XlsxWriter") from exc
-    with xlsxwriter.Workbook(str(path), {"strings_to_formulas": False, "strings_to_urls": False}) as book:
-        title = book.add_format({"bold": True, "font_size": 17, "font_color": "#17365D"})
-        header = book.add_format({"bold": True, "bg_color": "#17365D", "font_color": "white", "text_wrap": True})
-        numeric = book.add_format({"num_format": "0.00"})
-        sheet = book.add_worksheet("Results")
-        sheet.hide_gridlines(2)
-        sheet.write(0, 0, "Ventilation airflow validation | Group 16", title)
-        sheet.write(1, 0, model_label)
-        sheet.write(2, 0, "Criterion: 7 L/s/person + 0.7 L/s/m2. Design check only; no thermal comfort verification.")
-        counts = Counter(row[9] for row in rows)
-        sheet.write(3, 0, " | ".join(f"{key}: {value}" for key, value in counts.items()) or "No IfcSpace entities found")
-        sheet.write(4, 0, "Snapshot: update room_inputs.csv and rerun. Scope must be confirmed with include=yes/no.")
-        sheet.write_row(6, 0, RESULT_COLUMNS, header)
-        sheet.set_row(6, 32)
-        for index, row in enumerate(rows, 7):
-            for col, value in enumerate(row):
-                sheet.write(index, col, value, numeric if 4 <= col <= 8 else None)
-        sheet.set_column(0, 0, 25)
-        sheet.set_column(1, 2, 22)
-        sheet.set_column(3, 3, 33)
-        sheet.set_column(4, 8, 18)
-        sheet.set_column(9, 9, 23)
-        sheet.set_column(10, 10, 65)
-        sheet.set_column(11, 13, 45)
-        sheet.freeze_panes(7, 3)
-        if rows:
-            sheet.autofilter(6, 0, 6 + len(rows), len(RESULT_COLUMNS) - 1)
-            for status, color in [("Meets requirement", "#E2EFDA"), ("Below requirement", "#FCE4D6"),
-                                   ("Insufficient data", "#FFF2CC"), ("Review scope", "#DDEBF7")]:
-                sheet.conditional_format(7, 9, 6 + len(rows), 9, {
-                    "type": "cell", "criteria": "equal to", "value": '"' + status + '"',
-                    "format": book.add_format({"bg_color": color})})
-        fields = book.add_worksheet("IFC fields")
-        fields.write_row(0, 0, ["GlobalId", "RoomNumber", "Property / quantity set", "Field", "Raw value", "Resolved unit"], header)
-        for index, row in enumerate(inventory, 1):
-            fields.write_row(index, 0, row)
-        fields.set_column(0, 1, 25)
-        fields.set_column(2, 5, 48)
-        fields.freeze_panes(1, 2)
-        if inventory:
-            fields.autofilter(0, 0, len(inventory), 5)
-        info = book.add_worksheet("Read me")
-        lines = ["Group 16 - A3 ventilation check", "Generated: " + datetime.now().isoformat(timespec="seconds"),
-                 "Model: " + model_label, "A2 source: MEP report, section 5.1, table 5, p.6 (supplied by group).",
-                 "The report itself has not been verified by this script.",
-                 "Required L/s = 7 * design occupants + 0.7 * floor area in m2.",
-                 "Margin = design supply airflow minus required supply airflow (L/s).",
-                 "Scope is confirmed in CSV by GlobalId: include=yes or include=no.",
-                 "Blank scope = Review scope, regardless of room name suggestions.",
-                 "CSV numeric values override IFC values and must have a documented source.",
-                 "CSV area is m2; airflow_unit accepts L/s, m3/h or m3/s. Decimal comma is accepted.",
-                 "Blank CSV values leave extracted IFC values unchanged; no undocumented defaults are inserted.",
-                 "Area is converted only when its IFC unit can be resolved. No geometry is calculated.",
-                 "IFC design supply airflow is read only if AIRFLOW_FIELD and AIRFLOW_UNIT are configured.",
-                 "Zero occupants and zero airflow are accepted as inputs; zero area is invalid.",
-                 "No pass/fail rounding or tolerance is applied; visible numbers are rounded for display only.",
-                 "Inspect IFC fields and confirm property meanings, room scope and unit conventions before use.",
-                 "Results are static snapshots. Edit input CSV and rerun, rather than editing Excel outputs.",
-                 "Does not verify thermal comfort, CO2 concentration, actual airflow or complete standards compliance.",
-                 "Warnings:"] + (warnings or ["None"])
-        for i, line in enumerate(lines):
-            info.write(i, 0, line)
-        info.set_column(0, 0, 125)
+# 5. WRITE CSV OUTPUTS. Edit input CSV and rerun to update results.
+def write_csv_outputs(output, rows, inventory, warnings, model_label):
+    with (output / "results.csv").open("w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(RESULT_COLUMNS)
+        writer.writerows(rows)
+    with (output / "ifc_fields.csv").open("w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["GlobalId", "RoomNumber", "Property / quantity set",
+                         "Field", "Raw value", "Resolved unit"])
+        writer.writerows(inventory)
+    lines = [
+        "Group 16 - A3 ventilation check",
+        "Generated: " + datetime.now().isoformat(timespec="seconds"),
+        "Model: " + model_label,
+        "A2 source: MEP report, section 5.1, table 5, p.6 (supplied by group).",
+        "The report itself has not been verified by this script.",
+        "Required L/s = 7 * design occupants + 0.7 * floor area in m2.",
+        "Margin = design supply airflow minus required airflow (L/s).",
+        "Confirm scope in room_inputs.csv: include=yes or include=no.",
+        "Blank scope = Review scope. Room names are suggestions only.",
+        "Supplementary numeric inputs override IFC values and require a source.",
+        "CSV area is m2; airflow_unit accepts L/s, m3/h or m3/s.",
+        "Blank CSV values leave extracted IFC values unchanged.",
+        "Area requires a resolved IFC area unit; no geometry is calculated.",
+        "IFC airflow requires configured AIRFLOW_FIELD and AIRFLOW_UNIT.",
+        "Zero occupants and zero airflow are accepted; zero area is invalid.",
+        "No pass/fail rounding or tolerance is applied.",
+        "Outputs are snapshots: edit room_inputs.csv and rerun.",
+        "The IFC model is unchanged.",
+        "Does not verify thermal comfort, CO2, measured airflow or full standards compliance.",
+        "Status counts: " + str(dict(Counter(row[9] for row in rows))),
+        "Warnings:",
+    ] + (warnings or ["None"])
+    (output / "run_info.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def demo_records():
@@ -333,12 +298,10 @@ def main():
                 writer.writerow(INPUT_COLUMNS)
                 for r in records:
                     writer.writerow([r["gid"], r["number"], r["name"], "", "", "", "", "", ""])
-        write_excel(output / "ventilation_results.xlsx", rows, inventory, warnings, label)
-        with (output / "results.csv").open("w", encoding="utf-8-sig", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(RESULT_COLUMNS)
-            writer.writerows(rows)
-        print("Excel created:", (output / "ventilation_results.xlsx").resolve())
+        write_csv_outputs(output, rows, inventory, warnings, label)
+        print("Results CSV created:", (output / "results.csv").resolve())
+        print("IFC fields CSV created:", (output / "ifc_fields.csv").resolve())
+        print("Run information:", (output / "run_info.txt").resolve())
         print("Input template (existing file preserved):", template.resolve())
         print("Status counts:", dict(Counter(row[9] for row in rows)))
         for warning in warnings:
@@ -349,7 +312,7 @@ def main():
         return 0
     except (OSError, ValueError, RuntimeError) as exc:
         print("ERROR:", exc)
-        print("Check paths and inputs; close any open output Excel file before rerunning.")
+        print("Check paths and inputs; close any open output CSV files before rerunning.")
         return 1
 
 
