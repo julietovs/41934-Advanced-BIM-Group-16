@@ -1,69 +1,94 @@
+# A3 TEACH - Importing Indoor Climate Data into an IFC Model with Blender/Bonsai
+This repository documents a tutorial for importing room-level indoor climate data from a CSV file into IfcSpace entities using Python in Blender/Bonsai, and for 
+verifying that the data is stored in the model. The tutorial builds on the data limitations identified in A1 and the ventilation use case developed in A2 for Building #2601.
+
 ## Summary
 **Title:** Import indoor climate data from CSV into IFC spaces
 
-**Description:** Check an IFC model for missing indoor temperatures, import a CSV with indoor conditions into the IfcSpaces using Python in Blender/Bonsai, verify that the data is stored in the model, and compare the values with Danish requirements.
+**Description:** Check an IFC model for missing indoor temperatures, import a CSV with indoor conditions into IfcSpaces using Python in Blender/Bonsai, verify that the
+data is stored in the model, and compare the values with Danish requirements.
 
-## Overview of the scripts
+## A3a: About the group
+Group number: 16
+Total Python coding confidence score: 3
+Focus area: Indoor Climate
+Role: Analyst
+Role learning level targeted: [1 / 2 / 3 – check the roles page and fill in]
+BIM use: [e.g. Energy Analysis / Building System Analysis – fill in]
+Selected building: #2601
 
-| Script | Purpose | Run in |
-|---|---|---|
-| **Code 1** | Searches the IFC file for indoor temperatures and writes them to a CSV file | Blender → Scripting |
-| **Code 2** | Imports the generated CSV with indoor conditions into the IfcSpaces | Blender → Scripting |
-| **Code 3** | Verifies that the imported data is stored in the saved IFC file | Blender → Scripting |
+## A3b: Identify the learning need
+### What is the learning need?
+In A1 we found that temperature-related properties in the IFC model were missing or contained zero values, which prevented verification of the report's thermal comfort claim. 
+In A2 we proposed a ventilation tool that depends on supplementary room data (occupancy and airflow) linked to IfcSpaces. Both depend on the same skill: getting external room-level 
+data into an IFC model and checking that it was stored correctly.
 
-## Prerequisites
+### Who needs it?
+Students in the Indoor Climate focus area, and other analysts who need to add data from external sources (CSV, Excel, schedules) to rooms in an IFC model.
+
+### Why is it relevant?
+Models often arrive with incomplete room data. Being able to import supplementary data in a traceable way, and to verify the result, makes later checks (thermal comfort, ventilation, energy) 
+possible and repeatable.
+
+## A3c: Learning objectives
+After completing this tutorial, the student can:
+1. Use Python in Blender/Bonsai to search an IFC model for indoor temperature properties and export the result to CSV.
+2. Prepare a CSV file that can be matched to `IfcSpace` entities.
+3. Import values from a CSV into an IFC property set and save the result in the model.
+4. Verify that the imported data exists in the saved IFC file.
+5. Compare the values with Danish requirements and suggest improvements if they are not met.
+
+## A3d: Tutorial
+### Prerequisites
 - Blender with the Bonsai add-on installed
 - The IFC model opened in Bonsai
 - Excel (or another CSV viewer)
-- The scripts from this repository
+- The scripts in this repository (code 1, code 2 and code 3)
 
-## Step by step
+### Overview of the scripts
 
-1. **Run code 1**
+| Script | Purpose | Run in |
+|---|---|---|
+| Code 1 | Searches the IFC file for indoor temperatures and writes them to a CSV file | Blender → Scripting |
+| Code 2 | Imports the CSV with indoor conditions into the IfcSpaces | Blender → Scripting |
+| Code 3 | Verifies that the imported data is stored in the saved IFC file | Blender → Scripting |
+
+### Step by step
+1. **Run code 1.** 
    Copy code 1 from this README into Blender → Scripting and run it. It searches all `IfcSpace` entities for temperature properties and writes the result to a CSV file.
-
-2. **Analyse the generated CSV file**
-   Open the CSV file in Excel. Check which rooms have temperature values and which are empty.
-
-3. **Follow the matching path in the BPMN diagram**
+2. **Analyse the generated CSV file.** 
+   Open the CSV in Excel. Check which rooms have temperature values and which are empty.
+3. **Follow the matching path in the BPMN diagram.** 
    If data is missing, follow the path in the BPMN diagram that matches the situation.
-
-4. **Import the missing data with code 2**
-   In our case, the matching path was to import a generated CSV file with indoor conditions into the model.
+4. **Import the missing data with code 2.** 
+   Our matching path was to import a generated CSV file with indoor conditions into Blender.
    - Prepare the CSV file. `Room Number` must be identical to `IfcSpace.Name` in the model.
    - Copy code 2 from this README into Blender → Scripting and run it.
-   - **Save the IFC file from Bonsai (Save Project).**
+   - Save the IFC file from Bonsai (Save Project).
+   > Important: The IFC file must be saved after running code 2. Code 2 only changes the model in memory. If the file is not saved, the next steps will not work.
+5. **Verify the import with code 3.** 
+   Code 1 only reads the file on disk and has not been changed, so it is not used for verification. Run code 3 instead. It uses the same list of 
+   temperature property names as code 1, and also reads the imported property set and compares the model in memory with the saved file.
+6. **Control the result in Excel.** 
+   Open the new CSV file generated by code 3 and check that the imported values are now stored in the model.
+7. **Check the values against the Danish requirements.**
+   - Indoor temperature: DS/EN 16798-1, category II
+   - Ventilation: q_required = 7 × N + 0.7 × A [L/s] (from our A2 use case) and BR18
+8. **Suggest improvements if the values are outside the requirements.**
+   - Passive: solar shading, night ventilation, thermal mass, improved insulation or airtightness
+   - Active: adjusted heating or cooling setpoints, increased ventilation flow, additional cooling or heating units
 
-   > **Important:** The IFC file must be saved after running code 2. Code 2 only changes the model in memory. If the file is not saved, the next steps will not work.
-
-5. **Verify the import with code 3**
-   Code 1 only reads the file on disk and has not been changed, so it is not used for verification. Instead, run code 3. It uses the same list of temperature property names as code 1, but it also reads the imported property set and compares the model in memory with the saved file.
-
-6. **Control the result in Excel**
-   Open the new CSV file generated by code 3 and check that the imported values are now stored in the model. The temperature column should be filled for all rooms that had values in the imported CSV.
-
-7. **Check the values against the Danish requirements**
-   Compare the values with the criteria used in the project, for example:
-   - Indoor temperature: DS/EN 16798-1 (indoor environmental input parameters), category II
-   - Ventilation: `q_required = 7 × N + 0.7 × A` [L/s] (from our A2 use case), and the Danish Building Regulations (BR18)
-
-8. **Suggest improvements if the values are outside the requirements**
-   If the values do not meet the criteria, suggest a measure, for example:
-   - **Passive:** solar shading, night ventilation, thermal mass, improved insulation or airtightness
-   - **Active:** adjusted heating or cooling setpoints, increased ventilation flow, additional cooling or heating units
-
-## Troubleshooting
+### Troubleshooting
 
 | Problem | Likely cause | Fix |
 |---|---|---|
 | "no IfcSpace with this Name" | `Room Number` in the CSV does not match `IfcSpace.Name` | Print the names from the model and correct the CSV |
-| Temperature still empty in code 3 | The IFC was not saved after code 2 | Save from Bonsai, and check `model_path` |
+| Temperature still empty in code 3 | The IFC was not saved after code 2 | Save from Bonsai and check `model_path` |
 | `PermissionError` when writing the CSV | The CSV is open in Excel, or OneDrive is syncing | Close the file and run again |
 | Garbled `°C` or all data in one column | Wrong encoding or delimiter | Save as CSV UTF-8, and set `DELIMITER = ";"` if needed |
 | `NameError: csv is not defined` | The imports at the top of the script are missing | Copy the complete script |
 
-## Code
-
+## A3e: Code
 ### Code 1: Find indoor temperatures
 ```python
 # paste code 1 here
@@ -77,11 +102,25 @@
 ### Code 3: Verify the imported data
 ```python
 # paste code 3 here
-```e BPMN diagram 
-4. Our matching patch was to import a generated csv file with indoor conditions to blender. Step 4 is then to copy code 2 from Markdown into Blender -> Scripting. 
-It is important that after running code 2, the ifc file in blender is saved with the given information from the imported csv file. If not the next step will not be possible.
-5. Now run code 1 again and read the csv file to control that the imported data is now existing in the model. Code 1 is noe modified based on code 2 and the input given for blender. 
-Therefor we use code 3 instead, which has the same list of data search in the code, but modified for further search. 
-6. Open the new csv file generated with code 3 in excel and control that the imported data is now saved in the model. 
-6. Control with Danish Standard if values are within the criteria
-7. If not within required values, suggest an improvement or addition for passive or active cooling/heating. 
+```
+
+### Example data
+`IndoorClimate_import.csv` contains mockup data for the rooms in Building #2601. The values are not real measurements and are only used to demonstrate the workflow.
+
+## A3f: Tutorial formats
+- Markdown README with code blocks (this file)
+- Video: [link to video]
+- Jupyter notebook: [optional, link]
+
+## A3g: Peer testing and feedback
+### How was the tutorial tested?
+[Which group tested it, which model and CSV they used, and what went wrong]
+
+### Feedback received
+[Summarise the feedback and what was changed]
+
+### Feedback given
+[List the 2 groups you gave feedback to]
+
+## A3h: Software Licence
+The code in this tutorial is released under the MIT License, in line with A2. See the license in MIT License.
