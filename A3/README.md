@@ -13,8 +13,7 @@ Group number: 16
 Total Python coding confidence score: 3
 Focus area: Indoor Climate
 Role: Analyst
-Role learning level targeted: [1 / 2 / 3 – check the roles page and fill in]
-BIM use: [e.g. Energy Analysis / Building System Analysis – fill in]
+BIM use: Indoor Climate Analysis
 Selected building: #2601
 
 ## A3b: Identify the learning need
