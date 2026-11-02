@@ -109,7 +109,6 @@ After completing this tutorial, the student can:
 ## A3f: Tutorial formats
 - Markdown README with code blocks (this file)
 - Video: [link to video]
-- Jupyter notebook: [optional, link]
 
 ## A3g: Peer testing and feedback
 ### How was the tutorial tested?
