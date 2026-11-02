@@ -1,0 +1,84 @@
+import csv
+import os
+from datetime import datetime
+
+import bonsai.tool as tool
+import ifcopenshell
+import ifcopenshell.util.element as element
+
+# ---------- SETTINGS ----------
+model_path = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/AssignmentAddingCode.ifc"
+output_folder = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
+PSET_NAME = "Custom_RoomClimateData"
+
+# Same list as your A1 script
+TEMP_NAMES = [
+    "temperature", "indoor_temperature", "design_temperature",
+    "target_temperature", "room_temperature", "setpoint_temperature",
+]
+
+# ---------- HELPERS ----------
+def find_temperature(space):
+    """Same search as the A1 script."""
+    value = None
+    for definition in space.IsDefinedBy:
+        if definition.is_a("IfcRelDefinesByProperties"):
+            pset = definition.RelatingPropertyDefinition
+            if hasattr(pset, "HasProperties"):
+                for prop in pset.HasProperties:
+                    if prop.Name.lower() in TEMP_NAMES:
+                        try:
+                            value = prop.NominalValue.wrappedValue
+                        except Exception:
+                            value = None
+    return value
+
+def count_with_temperature(model):
+    return sum(1 for s in model.by_type("IfcSpace") if find_temperature(s) is not None)
+
+# ---------- 1. Model open in Bonsai (memory) ----------
+ifc_mem = tool.Ifc.get()
+print("=== In memory (Bonsai) ===")
+print("IfcSpaces:", len(ifc_mem.by_type("IfcSpace")))
+print("First names:", [s.Name for s in ifc_mem.by_type("IfcSpace")[:5]])
+print("Spaces with temperature:", count_with_temperature(ifc_mem))
+
+# ---------- 2. File on disk (what code 1 reads) ----------
+ifc_disk = ifcopenshell.open(model_path)
+n_disk = count_with_temperature(ifc_disk)
+print("\n=== On disk ===")
+print("File:", model_path)
+print("IfcSpaces:", len(ifc_disk.by_type("IfcSpace")))
+print("Spaces with temperature:", n_disk)
+
+# ---------- 3. Write CSV from the disk file ----------
+os.makedirs(output_folder, exist_ok=True)
+stamp = datetime.now().strftime("%H%M%S")
+output_file = f"{output_folder}/IndoorClimateAfterImport_{stamp}.csv"
+
+try:
+    file = open(output_file, "w", newline="", encoding="utf-8-sig")
+except PermissionError:
+    output_file = os.path.expanduser(f"~/Documents/IndoorClimateAfterImport_{stamp}.csv")
+    print("\nCould not write to the OneDrive folder, using:", output_file)
+    file = open(output_file, "w", newline="", encoding="utf-8-sig")
+
+with file:
+    writer = csv.writer(file)
+    writer.writerow(["Room Name", "Room Number", "Temperature (°C)",
+                     "Occupancy", "Supply Airflow (L/s)"])
+    for space in ifc_disk.by_type("IfcSpace"):
+        clim = element.get_pset(space, PSET_NAME) or {}
+        writer.writerow([
+            space.LongName or "",
+            space.Name or "",
+            find_temperature(space),
+            clim.get("DesignOccupancy"),
+            clim.get("DesignSupplyAirflow_Ls"),
+        ])
+
+print("\nCSV written:", output_file)
+if n_disk == 0:
+    print("RESULT: no temperatures found on disk -> see the table below.")
+else:
+    print(f"RESULT: {n_disk} spaces have temperature on disk. Code 1 should find them too.")
