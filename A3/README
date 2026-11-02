@@ -1,8 +1,3 @@
-Step by step
-1. Copy code 1 from Markdown into Blender -> Scripting
-2. Analyse data given in the csv. file generated from the python console 
-3. If missing data, follow your matching path in th# Importing indoor climate data into an IFC model with Blender/Bonsai
-
 ## Summary
 **Title:** Import indoor climate data from CSV into IFC spaces
 
