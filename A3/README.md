@@ -90,17 +90,17 @@ After completing this tutorial, the student can:
 ## A3e: Code
 ### Code 1: Find indoor temperatures
 ```python
-# paste code 1 here
+# paste code 1 in Blender
 ```
 
 ### Code 2: Import the CSV into the model
 ```python
-# paste code 2 here
+# paste code 2 in Blender
 ```
 
 ### Code 3: Verify the imported data
 ```python
-# paste code 3 here
+# paste code 3 in Blender
 ```
 
 ### Example data
@@ -110,15 +110,6 @@ After completing this tutorial, the student can:
 - Markdown README with code blocks (this file)
 - Video: [link to video]
 
-## A3g: Peer testing and feedback
-### How was the tutorial tested?
-[Which group tested it, which model and CSV they used, and what went wrong]
-
-### Feedback received
-[Summarise the feedback and what was changed]
-
-### Feedback given
-[List the 2 groups you gave feedback to]
 
 ## A3h: Software Licence
 The code in this tutorial is released under the MIT License, in line with A2. See the license in MIT License.
