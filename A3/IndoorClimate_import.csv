@@ -1,0 +1,71 @@
+﻿Room Name,Room Number,Temperature (°C),Occupancy,Supply Airflow (L/s)
+Materials library,101,21.5,4,55
+15 people MR,102,22.0,15,140
+15 people MR,103,22.0,15,140
+Hallway,104,20.0,,
+boots,105,19.0,,
+Boots,107,19.0,,
+Hallway,108,20.0,,
+Bike parking,110,16.0,,
+Storage,111,18.0,,
+Office,113,22.0,2,38
+Office,114,22.0,2,38
+Office,115,22.0,2,38
+shower/changing area,116,24.0,,
+WC,117,20.0,,
+WC,118,20.0,,
+Auditorium (200 pepole),123,22.5,200,1700
+Multi purpose area,124,22.0,20,190
+15 people MR,125,22.0,15,140
+Hallway,127,20.0,,
+cafe (50 people),129,22.0,50,450
+WC,130,20.0,,
+handicap WC,131,20.0,,
+Office,132,22.0,2,38
+Office,147,22.0,2,38
+6 people MR,154,22.0,6,70
+6 people MR,155,22.0,6,70
+Office,156,22.0,2,38
+6 people MR,173,22.0,6,70
+Tech,183,18.0,,
+shower/change,184,24.0,,
+AHU 4B flexible places,185,22.0,8,85
+Office,186,22.0,2,38
+escape stair/elevator,187,18.0,,
+Foyer,189,21.0,5,90
+Hallway,190,20.0,,
+Tech,191,18.0,,
+Tech,192,18.0,,
+Tech,193,18.0,,
+Tech,194,18.0,,
+Tech,195,18.0,,
+Tech,196,18.0,,
+Tech,197,18.0,,
+Reception/Atrium,198,21.0,5,90
+Office,199,22.0,2,38
+Office,200,22.0,2,38
+6 people MR,201,22.0,6,70
+Office,202,22.0,2,38
+Courtyard,203,,,
+studen area,205,22.0,30,280
+hallway,206,20.0,,
+Boots,207,19.0,,
+Tech,208,18.0,,
+25 people MR,225,22.0,25,225
+Office,247,22.0,2,38
+6 people MR,248,22.0,6,70
+Office,249,22.0,2,38
+Office,250,22.0,2,38
+Office,251,22.0,2,38
+Office,252,22.0,2,38
+Office,253,22.0,2,38
+Office,254,22.0,2,38
+Office,255,22.0,2,38
+Office,256,22.0,2,38
+Office,257,22.0,2,38
+Office,258,22.0,2,38
+15 people MR,259,22.0,15,140
+15 people MR,260,22.0,15,140
+Hallway,261,20.0,,
+Hallway,262,20.0,,
+Tech,263,18.0,,
