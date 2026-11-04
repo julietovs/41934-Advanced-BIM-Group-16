@@ -1,52 +1,70 @@
-import ifcopenshell
 import csv
 import os
 
-# --- 1. Load your IFC file ---
-model_path = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/AssignmentAddingCode.ifc"
+import ifcopenshell
+import ifcopenshell.util.element as element
+
+# --- 1. Load the original IFC model ---
+model_path = r"C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/AssignmentAddingCode.ifc"
 model = ifcopenshell.open(model_path)
 
-# --- 2. Define output folder and file ---
-output_folder = "C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
+# --- 2. Set the output folder and file ---
+output_folder = r"C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
 os.makedirs(output_folder, exist_ok=True)
+output_file = os.path.join(output_folder, "IndoorClimate.csv")
 
-output_file = output_folder + "/IndoorClimate.csv"
+PSET_NAME = "Custom_RoomClimateData"
 
-# --- 3. Create CSV file ---
-with open(output_file, "w", newline="") as file:
+TEMP_NAMES = {
+    "temperature",
+    "indoor_temperature",
+    "design_temperature",
+    "target_temperature",
+    "room_temperature",
+    "setpoint_temperature",
+}
+
+# --- 3. Create the CSV file ---
+with open(output_file, "w", newline="", encoding="utf-8-sig") as file:
     writer = csv.writer(file)
-    writer.writerow(["Room Name", "Room Number", "Temperature (°C)"])
+    writer.writerow([
+        "Room Name",
+        "Room Number",
+        "Temperature (°C)",
+        "Occupancy",
+        "Supply Airflow (L/s)",
+    ])
 
-    # --- 4. Loop through all spaces ---
+    # --- 4. Loop through all IfcSpaces ---
     for space in model.by_type("IfcSpace"):
-
         room_name = space.LongName or ""
         room_number = space.Name or ""
         temperature_value = None
 
-        # --- 5. Search property sets for temperature ---
+        # --- 5. Search the room's property sets for temperature ---
         for definition in space.IsDefinedBy:
-            if definition.is_a("IfcRelDefinesByProperties"):
-                pset = definition.RelatingPropertyDefinition
+            if not definition.is_a("IfcRelDefinesByProperties"):
+                continue
 
-                if hasattr(pset, "HasProperties"):
-                    for prop in pset.HasProperties:
+            pset = definition.RelatingPropertyDefinition
+            for prop in getattr(pset, "HasProperties", ()) or ():
+                if prop.Name.lower() in TEMP_NAMES:
+                    nominal_value = getattr(prop, "NominalValue", None)
+                    if nominal_value is not None:
+                        temperature_value = nominal_value.wrappedValue
 
-                        # Common temperature property names
-                        if prop.Name.lower() in [
-                            "temperature",
-                            "indoor_temperature",
-                            "design_temperature",
-                            "target_temperature",
-                            "room_temperature",
-                            "setpoint_temperature"
-                        ]:
-                            try:
-                                temperature_value = prop.NominalValue.wrappedValue
-                            except:
-                                temperature_value = None
+        # --- 6. Read occupancy and supply airflow, as in Code 3 ---
+        climate_data = element.get_pset(space, PSET_NAME) or {}
+        occupancy = climate_data.get("DesignOccupancy")
+        supply_airflow = climate_data.get("DesignSupplyAirflow_Ls")
 
-        # --- 6. Write one row per space ---
-        writer.writerow([room_name, room_number, temperature_value])
+        # --- 7. Write one row per room ---
+        writer.writerow([
+            room_name,
+            room_number,
+            temperature_value,
+            occupancy,
+            supply_airflow,
+        ])
 
-print("Indoor climate CSV created successfully.")
+print(f"Indoor climate CSV created: {output_file}")
