@@ -9,12 +9,12 @@ verifying that the data is stored in the model. The tutorial builds on the data 
 data is stored in the model, and compare the values with Danish requirements.
 
 ## A3a: About the group
-Group number: 16
-Total Python coding confidence score: 3
-Focus area: Indoor Climate
-Role: Analyst
-BIM use: Indoor Climate Analysis
-Selected building: #2601
+- Group number: 16
+- Total Python coding confidence score: 3
+- Focus area: Indoor Climate
+- Role: Analyst
+- BIM use: Indoor Climate Analysis
+- Selected building: #2601
 
 ## A3b: Identify the learning need
 ### What is the learning need?
@@ -108,7 +108,7 @@ After completing this tutorial, the student can:
 
 ## A3f: Tutorial formats
 - Markdown README with code blocks (this file)
-- Video: [link to video]
+- Video: (https://youtu.be/Jzvi-XgDxLw)
 
 
 ## A3h: Software Licence
