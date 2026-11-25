@@ -6,7 +6,7 @@
 
 ### Problem and claim
 
-The Building #2601 MEP report states that ventilation for offices and meeting rooms was designed using a Category II criterion of 7 L/s per person plus 0.7 L/s per m² of floor area. Our A2 use case turns that design statement into a room-by-room check. A manual review requires matching floor area, design occupancy and design supply airflow from the available model and design information.
+The Building #2601 MEP report states that ventilation for offices and meeting rooms was designed using a Category II criterion from DS-EN 16798-2:2019. Our A2 use case turns that design statement into a room-by-room check. A manual review requires matching floor area, design occupancy and design supply airflow from the available model and design information.
 
 Source for the criterion: Building #2601, Part D – MEP report, Section 5.1, Table 5, p. 6. See the [A2 use case](../A2/) and the [A2 BPMN diagram](../A2/IMG/Ventilation_tool.svg).
 
@@ -59,69 +59,11 @@ The result includes the room identifier, inputs and their sources, required and 
 
 4. **Run Code 2.** Set `IFC_IN` to the original IFC, `CSV_IN` to the prepared CSV and `IFC_OUT` to a different local IFC filename. Run the script in Blender → Scripting. It writes the updated model to `IFC_OUT`.
 5. **Verify the import with Code 1.** Open the IFC written by Code 2 in Bonsai and run Code 1 again. Compare the new CSV with the first export. Code 1 uses `Custom_RoomClimateData` as a fallback for each missing value. A value found in another property set, including `0`, can take precedence over the imported value. If the CSV still shows an old value, check the imported property directly on the room in Bonsai.
-6. **Run the ventilation check.** Use the updated IFC as the input for the A4 checker. Follow the instructions below to configure the fields and review the results.
+
 
 See the [A3 Teach section](../A3/) and the [video walkthrough](https://youtu.be/Jzvi-XgDxLw) for the tutorial background.
 
-### Run the ventilation check
 
-If the IFC already contains the necessary room data, you can start here. Use the IFC file containing the `IfcSpace` objects for the rooms you want to assess, and keep it on your computer.
-
-1. **Set up Python.** Open PowerShell in `A4/`. The commands below use Python 3.14.
-
-   ```powershell
-   py -3.14 -m venv .venv
-   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-   ```
-
-2. **Inspect the IFC fields.** Set `MODEL_PATH` in [settings.py](settings.py) to the saved IFC, or pass the quoted local path after `runall.py`. The top-level [main.py](main.py) supports the same arguments.
-
-   ```powershell
-   .\.venv\Scripts\python.exe runall.py
-   ```
-
-   Open `ifc_fields.csv` in the new results folder. Confirm the field names and units for area, design occupancy and design supply airflow. Set each IFC field in `settings.py` as `("SetName", "FieldName")`. Set `AIRFLOW_FIELD` and `AIRFLOW_UNIT` if the supply airflow is stored in the IFC.
-
-   To use the occupancy and airflow imported by A3 Code 2, set:
-
-   ```python
-   OCCUPANCY_FIELD = ("Custom_RoomClimateData", "DesignOccupancy")
-   AIRFLOW_FIELD = ("Custom_RoomClimateData", "DesignSupplyAirflow_Ls")
-   AIRFLOW_UNIT = "L/s"
-   ```
-
-3. **Select the rooms.** Copy the generated `room_inputs.csv` to `A4/`. Enter `yes` for offices and meeting rooms in the A2 scope, `no` for excluded rooms, and leave the field blank for rooms still under review. Keep each `GlobalId` unchanged. Clear the numeric cells for values you want the checker to read from the IFC. Enter any documented supplementary values in the CSV together with their `source`. If you enter `design_airflow`, also specify `airflow_unit`.
-
-4. **Run the comparison.** If you left `MODEL_PATH` blank, add the quoted IFC path immediately after `runall.py`. Open `results.csv` in the new results folder and review the airflow values, margin and status.
-
-   ```powershell
-   .\.venv\Scripts\python.exe runall.py --data room_inputs.csv
-   ```
-
-
-## Outputs and results
-
-Each run writes to a new folder under `ventilation_check/results/`.
-
-| Output | What it contains |
-| --- | --- |
-| `result.json` | Machine-readable results, status counts, criterion and field mapping. |
-| `results.csv` | One row per IFC room with the inputs, margin, status, sources and notes. |
-| `ifc_fields.csv` | Inventory of room properties and quantities used to identify the field mapping. |
-| `room_inputs.csv` | Room selection and input template from a run without `--data`. |
-| `ventilation_inputs.ids` | Model information requirements for the selected rooms, generated with `--ids`. |
-
-| Status | Interpretation |
-| --- | --- |
-| Meets requirement | The documented design airflow meets the calculated minimum. |
-| Below requirement | The design airflow falls below the calculated minimum. Review the shortfall and the ventilation design. |
-| Insufficient data | A required input is missing, invalid or lacks the required source or unit. |
-| Review scope | The room's inclusion has yet to be confirmed. |
-| Outside scope | The user explicitly excluded the room. |
-
-**Illustrative example.** For a room of 20 m² designed for two occupants, the required airflow is 28 L/s. If the documented design airflow is 25 L/s, the margin is −3 L/s and the room is marked **Below requirement**.
-
-<!-- After checking Building #2601, replace this comment with the IFC version, room scope, status counts, one representative room and a link to an approved result. -->
 
 ## Information Delivery Specification (IDS) – Check the IFC inputs
 
