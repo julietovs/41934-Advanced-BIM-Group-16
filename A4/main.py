@@ -9,7 +9,7 @@ from settings import MODEL_PATH
 
 model_path = MODEL_PATH
 
-
+""" Code 1 """
 if __name__ == "__main__":
     main(model_path=model_path)
 
