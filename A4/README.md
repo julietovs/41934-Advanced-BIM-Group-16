@@ -123,7 +123,7 @@ Each run writes to a new folder under `ventilation_check/results/`.
 
 <!-- After checking Building #2601, replace this comment with the IFC version, room scope, status counts, one representative room and a link to an approved result. -->
 
-## IDS – Check the IFC inputs
+## Information Delivery Specification (IDS) – Check the IFC inputs
 
 An IDS (Information Delivery Specification) describes what information an IFC model should contain. Our `ventilation_inputs.ids` tells an IDS checker which rooms to inspect and which three fields to look for: floor area, design occupancy and design supply airflow.
 
