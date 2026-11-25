@@ -123,16 +123,36 @@ Each run writes to a new folder under `ventilation_check/results/`.
 
 <!-- After checking Building #2601, replace this comment with the IFC version, room scope, status counts, one representative room and a link to an approved result. -->
 
-## IDS
+## IDS – Check the IFC inputs
 
-Confirm at least one room with `include=yes` and configure the area, occupancy and design supply airflow fields to match the IFC. If you have left `MODEL_PATH` blank, add the quoted IFC path after `runall.py`.
+An IDS (Information Delivery Specification) describes what information an IFC model should contain. Our `ventilation_inputs.ids` tells an IDS checker which rooms to inspect and which three fields to look for: floor area, design occupancy and design supply airflow.
 
-```powershell
-.\.venv\Scripts\python.exe runall.py --data room_inputs.csv --ids
-```
+### Generate the IDS file
 
-The generated `ventilation_inputs.ids` checks that the configured fields are present on the selected rooms. Validate it against the same IFC in an IDS checker such as IfcTester. The numerical airflow comparison is in `results.csv`. A documented CSV value can support the numerical check even when the corresponding field is missing from the IFC.
+1. Open `room_inputs.csv`. In the `include` column, enter `yes` for each room you want to check. Select at least one room and keep its `GlobalId` unchanged.
+2. In `settings.py`, set `AREA_FIELD`, `OCCUPANCY_FIELD` and `AIRFLOW_FIELD` to the property or quantity names used in your IFC.
+3. After completing the Python setup, open the local `A4/` folder in Windows File Explorer. Type `powershell` in the address bar and press **Enter**. Run:
 
+   ```powershell
+   .\.venv\Scripts\python.exe runall.py --data room_inputs.csv --ids
+   ```
+
+   `--data room_inputs.csv` tells the tool which room input file to use. `--ids` tells it to generate the IDS file. If `MODEL_PATH` is blank, replace the example path below with the path to your IFC:
+
+   ```powershell
+   .\.venv\Scripts\python.exe runall.py "C:\Models\Building2601.ifc" --data room_inputs.csv --ids
+   ```
+
+### Validate the IFC and read the results
+
+Find `ventilation_inputs.ids` in the new run folder under `ventilation_check/results/`. Load the IDS and the same IFC model into an IDS checker such as IfcTester, then run the validation.
+
+| Where to look | What it tells you |
+| --- | --- |
+| IDS checker | Whether the selected rooms contain the specified IFC fields. |
+| `results.csv` | Whether the design supply airflow meets the calculated requirement for each selected room. |
+
+For example, if a room has no supply airflow field in the IFC, the IDS checker flags that field as missing. If you enter a documented airflow value for the same room in `room_inputs.csv`, the tool can still calculate the room's ventilation result in `results.csv`.
 ## Advanced Building Design
 
 **Stage C (Detailed Design).** Room use, floor area and design occupancy can be reviewed alongside the planned ventilation rates while the team can still adjust the design. HVAC designers can investigate airflow shortfalls. Architects can confirm room use and areas, and BIM analysts can check the model properties, units and data sources.
