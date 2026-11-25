@@ -32,17 +32,15 @@ possible and repeatable.
 ## A3c: Learning objectives
 After completing this tutorial, the student can:
 1. Use Python in Blender/Bonsai to search an IFC model for indoor temperature properties and export the result to CSV.
-2. Prepare a CSV file that can be matched to `IfcSpace` entities.
-3. Import values from a CSV into an IFC property set and save the result in the model.
-4. Verify that the imported data exists in the saved IFC file.
-5. Compare the values with Danish requirements and suggest improvements if they are not met.
+2. Import values from a CSV into an IFC property set and save the result in the model.
+3. Compare the values with Danish requirements and suggest improvements if they are not met.
 
 ## A3d: Walkthrough
 This section provides a detail walkthrough of how the Room Climate Export(Code 1) and Import(Code 2) tool works internally.
 
 ### Overview of the tool
 The tool is comprimised of:
-- Code1, which runs inside Blender/bOnsai, reads the indoor climate data from the open IFC   model and writes it to a CSV file.
+- Code1, which runs inside Blender/Bonsai, reads the indoor climate data from the open IFC   model and writes it to a CSV file.
 - Code2, which reads a CSV file with design values per room and writes them into the IFC model as a property set.
 
 Together they make it possible to get room data into the model, and to get a quick overview of which rooms have data and which do not. 
