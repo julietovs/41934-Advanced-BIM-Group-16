@@ -65,39 +65,25 @@ See the [A3 Teach section](../A3/) and the [video walkthrough](https://youtu.be/
 
 
 
-## Information Delivery Specification (IDS) – Check the IFC inputs
+## Information Delivery Specification (IDS)
 
-An IDS (Information Delivery Specification) describes what information an IFC model should contain. Our `ventilation_inputs.ids` tells an IDS checker which rooms to inspect and which three fields to look for: floor area, design occupancy and design supply airflow.
+An IDS is a machine-readable checklist for the information an IFC model should contain. Our room data IDS checks whether the selected room has the properties imported by Code 2 in `Custom_RoomClimateData`.
 
-### Generate the IDS file
-
-1. Open `room_inputs.csv`. In the `include` column, enter `yes` for each room you want to check. Select at least one room and keep its `GlobalId` unchanged.
-2. In `settings.py`, set `AREA_FIELD`, `OCCUPANCY_FIELD` and `AIRFLOW_FIELD` to the property or quantity names used in your IFC.
-3. After completing the Python setup, open the local `A4/` folder in Windows File Explorer. Type `powershell` in the address bar and press **Enter**. Run:
-
-   ```powershell
-   .\.venv\Scripts\python.exe runall.py --data room_inputs.csv --ids
-   ```
-
-   `--data room_inputs.csv` tells the tool which room input file to use. `--ids` tells it to generate the IDS file. If `MODEL_PATH` is blank, replace the example path below with the path to your IFC:
-
-   ```powershell
-   .\.venv\Scripts\python.exe runall.py "C:\Models\Building2601.ifc" --data room_inputs.csv --ids
-   ```
-
-### Validate the IFC and read the results
-
-Find `ventilation_inputs.ids` in the new run folder under `ventilation_check/results/`. Load the IDS and the same IFC model into an IDS checker such as IfcTester, then run the validation.
-
-| Where to look | What it tells you |
+| Code 2 CSV column | IFC property checked by the IDS |
 | --- | --- |
-| IDS checker | Whether the selected rooms contain the specified IFC fields. |
-| `results.csv` | Whether the design supply airflow meets the calculated requirement for each selected room. |
+| `temperature_c` | `DesignTemperature_C` |
+| `occupancy` | `DesignOccupancy` |
+| `supply_airflow_ls` | `DesignSupplyAirflow_Ls` |
 
-For example, if a room has no supply airflow field in the IFC, the IDS checker flags that field as missing. If you enter a documented airflow value for the same room in `room_inputs.csv`, the tool can still calculate the room's ventilation result in `results.csv`.
+1. Open the IFC written to `IFC_OUT` and the IDS in an IDS checker such as IfcTester.
+2. Run the validation. The example IDS selects room `113` by its `IfcSpace.Name`, matching the `room_number` column used by Code 2. It expects all three properties for this room because its row in the A3 example CSV contains all three values.
+3. For another room, change the applicability value for `Name` in the IDS to its exact room number. Add a specification for each additional room you want to validate. If a CSV field was intentionally left blank, omit its property requirement for that room.
+
+To verify the imported numbers, compare the CSV values with the room properties in Bonsai. Code 1 provides an additional export for review.
+
 ## Advanced Building Design
 
-**Stage C (Detailed Design).** Room use, floor area and design occupancy can be reviewed alongside the planned ventilation rates while the team can still adjust the design. HVAC designers can investigate airflow shortfalls. Architects can confirm room use and areas, and BIM analysts can check the model properties, units and data sources.
+**Stages C (Integrate) and D (Detail).** In Stage C, the workflow supports coordination between architecture and building services by identifying missing room data and importing documented indoor climate information into the IFC model. In Stage D, the IDS can be applied to the final IFC model to verify that the expected properties are present on the selected rooms before delivery.
 
 | Required information | Where the checker gets it |
 | --- | --- |
