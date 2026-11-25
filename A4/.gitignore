@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.ifc
+*.ifczip
+room_inputs.csv
+ventilation_check/results/
