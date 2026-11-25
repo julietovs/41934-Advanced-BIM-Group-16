@@ -1,70 +1,117 @@
 import csv
 import os
+from datetime import datetime
 
-import ifcopenshell
-import ifcopenshell.util.element as element
+try:
+    import bonsai.tool as tool        # Bonsai (current name)
+except ImportError:
+    import blenderbim.tool as tool    # older BlenderBIM versions
 
-# --- 1. Load the original IFC model ---
-model_path = r"C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/AssignmentAddingCode.ifc"
-model = ifcopenshell.open(model_path)
+# the model that is open in Bonsai
+model = tool.Ifc.get()
+if model is None:
+    raise RuntimeError("No IFC model is open in Bonsai. Open AssignmentAddingCode.ifc first.")
 
-# --- 2. Set the output folder and file ---
-output_folder = r"C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
-os.makedirs(output_folder, exist_ok=True)
-output_file = os.path.join(output_folder, "IndoorClimate.csv")
+# ---------- settings ----------
+outputFolder = r"C:/Users/Amalie Pallesen/OneDrive - OsloMet/Dokumenter/Msc Sustainable Energy Systems/Semester 3/Advanced BIM/output"
+psetName = "Custom_RoomClimateData"
 
-PSET_NAME = "Custom_RoomClimateData"
+# the properties we are looking for in the IfcSpaces (lower case, spaces as _)
+tempNames = ["temperature", "indoor_temperature", "design_temperature",
+             "target_temperature", "room_temperature", "setpoint_temperature"]
+occNames = ["occupancy", "occupants", "number_of_occupants", "occupancy_number",
+            "design_occupancy", "people", "number_of_people"]
+airNames = ["supply_airflow", "supply_air_flow", "supply_air", "airflow",
+            "air_flow", "design_supply_airflow", "supply_airflow_ls", "ventilation_rate"]
 
-TEMP_NAMES = {
-    "temperature",
-    "indoor_temperature",
-    "design_temperature",
-    "target_temperature",
-    "room_temperature",
-    "setpoint_temperature",
-}
+# if nothing is found in the space itself, we look in the custom property set
+print('\n## search indoor climate in IfcSpace ##\n')
+print('Searching for...')
+print('\tTemperature     = {}'.format(tempNames))
+print('\tOccupancy       = {}'.format(occNames))
+print('\tSupply airflow  = {}'.format(airNames))
+print('\tFallback pset   = {}'.format(psetName))
 
-# --- 3. Create the CSV file ---
-with open(output_file, "w", newline="", encoding="utf-8-sig") as file:
-    writer = csv.writer(file)
-    writer.writerow([
-        "Room Name",
-        "Room Number",
-        "Temperature (°C)",
-        "Occupancy",
-        "Supply Airflow (L/s)",
-    ])
+# ---------- output file ----------
+os.makedirs(outputFolder, exist_ok=True)
+stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+outputFile = "{}/IndoorClimate_{}.csv".format(outputFolder, stamp)
 
-    # --- 4. Loop through all IfcSpaces ---
-    for space in model.by_type("IfcSpace"):
-        room_name = space.LongName or ""
-        room_number = space.Name or ""
-        temperature_value = None
+try:
+    file = open(outputFile, "w", newline="", encoding="utf-8-sig")
+except PermissionError:
+    # e.g. OneDrive sync, or the file is open in Excel
+    outputFile = os.path.expanduser("~/Documents/IndoorClimate_{}.csv".format(stamp))
+    print('\nCould not write to the OneDrive folder, using: {}'.format(outputFile))
+    file = open(outputFile, "w", newline="", encoding="utf-8-sig")
 
-        # --- 5. Search the room's property sets for temperature ---
-        for definition in space.IsDefinedBy:
-            if not definition.is_a("IfcRelDefinesByProperties"):
+writer = csv.writer(file)
+writer.writerow(["Room Name", "Room Number", "Temperature (°C)",
+                 "Occupancy", "Supply Airflow (L/s)"])
+
+# ---------- loop through all spaces ----------
+count = 0
+foundTemp = 0
+foundOcc = 0
+foundAir = 0
+print('Results:')
+
+for space in model.by_type("IfcSpace"):
+    temperature = None
+    occupancy = None
+    airflow = None
+    customData = {}
+
+    # all property sets of this space
+    for rel in space.IsDefinedBy:
+        if not rel.is_a("IfcRelDefinesByProperties"):
+            continue
+        pset = rel.RelatingPropertyDefinition
+        if not hasattr(pset, "is_a") or not pset.is_a("IfcPropertySet"):
+            continue
+
+        # and all single values within those property sets
+        for prop in pset.HasProperties:
+            if not prop.is_a("IfcPropertySingleValue") or prop.NominalValue is None or prop.Name is None:
                 continue
+            value = prop.NominalValue.wrappedValue
+            name = prop.Name.lower().replace(" ", "_")
 
-            pset = definition.RelatingPropertyDefinition
-            for prop in getattr(pset, "HasProperties", ()) or ():
-                if prop.Name.lower() in TEMP_NAMES:
-                    nominal_value = getattr(prop, "NominalValue", None)
-                    if nominal_value is not None:
-                        temperature_value = nominal_value.wrappedValue
+            # the custom pset is only the fallback, so we just store it for now
+            if pset.Name == psetName:
+                customData[prop.Name] = value
+            elif name in tempNames:
+                temperature = value
+            elif name in occNames:
+                occupancy = value
+            elif name in airNames:
+                airflow = value
 
-        # --- 6. Read occupancy and supply airflow, as in Code 3 ---
-        climate_data = element.get_pset(space, PSET_NAME) or {}
-        occupancy = climate_data.get("DesignOccupancy")
-        supply_airflow = climate_data.get("DesignSupplyAirflow_Ls")
+    # nothing found in the space itself? then use the custom pset
+    if temperature is None:
+        temperature = customData.get("DesignTemperature_C")
+    if occupancy is None:
+        occupancy = customData.get("DesignOccupancy")
+    if airflow is None:
+        airflow = customData.get("DesignSupplyAirflow_Ls")
 
-        # --- 7. Write one row per room ---
-        writer.writerow([
-            room_name,
-            room_number,
-            temperature_value,
-            occupancy,
-            supply_airflow,
-        ])
+    writer.writerow([space.LongName or "", space.Name or "",
+                     temperature, occupancy, airflow])
 
-print(f"Indoor climate CSV created: {output_file}")
+    print('\t# {:3} | {:8} | {:6} | {:6} | {}'.format(
+        count, space.Name or "", str(temperature), str(occupancy), str(airflow)))
+    count += 1
+    if temperature is not None:
+        foundTemp += 1
+    if occupancy is not None:
+        foundOcc += 1
+    if airflow is not None:
+        foundAir += 1
+
+file.close()
+
+print('\nIfcSpaces: {}'.format(count))
+print('\twith temperature    : {}'.format(foundTemp))
+print('\twith occupancy      : {}'.format(foundOcc))
+print('\twith supply airflow : {}'.format(foundAir))
+print('CSV written: {}'.format(outputFile))
