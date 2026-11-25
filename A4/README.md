@@ -26,58 +26,42 @@ The result includes the room identifier, inputs and their sources, required and 
 ### Prerequisites
 
 - Blender with the Bonsai add-on installed
-- The IFC model opened in Bonsai
-- Excel (or another CSV viewer)
-- The scripts in this repository (Code 1 and Code 2)
-- A course-supported Python installation for the automated ventilation check in step 7
+- The original IFC model available locally
+- Excel or another CSV viewer
+- [Code 1](../A3/Code%201) and [Code 2](../A3/Code%202) from A3
+- A course-supported Python installation for the automated ventilation check
 
 ### Overview of the scripts
 
 | Script | Purpose | Run in |
 | --- | --- | --- |
-| Code 1 | Exports room data from the saved IFC to a CSV file so it can be checked before and after import | Blender → Scripting |
-| Code 2 | Imports the CSV with indoor climate data into the `IfcSpace` objects | Blender → Scripting |
+| [Code 1 – Export room data](../A3/Code%201) | Reads the IFC open in Bonsai and exports available temperature, occupancy and supply airflow values to CSV | Blender → Scripting |
+| [Code 2 – Import room data](../A3/Code%202) | Adds room data from CSV to `Custom_RoomClimateData` and writes a new IFC file | Blender → Scripting |
 
 ### Step by step
 
-1. **Run Code 1.** Copy Code 1 into Blender → Scripting and run it. It searches all `IfcSpace` entities for temperature properties and writes the results to a CSV file.
+1. **Run Code 1.** Open the original IFC in Bonsai. Copy Code 1 into Blender → Scripting, set `outputFolder` to a local folder and run the script.
+2. **Review the CSV.** Check which rooms are missing design occupancy or supply airflow. Use the [A2 BPMN diagram](../A2/IMG/Ventilation_tool.svg) to identify the relevant path. If the IFC already contains the required data, continue directly to the [ventilation check](#run-the-ventilation-check).
+3. **Prepare the import CSV.** The value in `room_number` must match the room's `IfcSpace.Name`. Use the following column names for Code 2. Leave any unavailable values blank.
 
-2. **Analyse the generated CSV file.** Open the CSV in Excel. Check which rooms have temperature values and which cells are empty.
+   ```csv
+   room_number,occupancy,supply_airflow_ls,temperature_c
+   ```
 
-3. **Follow the matching path in the BPMN diagram.** If data is missing, follow the path in the [A2 BPMN diagram](../A2/IMG/Ventilation_tool.svg) that matches the situation.
+   To try the workflow with the [A3 example CSV](../A3/IndoorClimate_import.csv), make a local copy and rename the columns as shown below. You can keep the `Room Name` column. Match the `DELIMITER` setting in Code 2 to the separator in your CSV. The example contains mock data. Use documented design values for the actual building check.
 
-4. **Import the missing data with Code 2.** In our case, the matching path was to import a CSV file with indoor climate data into the IFC model.
-   - Prepare the CSV file. The `Room Number` must match `IfcSpace.Name` exactly.
-   - Copy Code 2 into Blender → Scripting and run it.
-   - Save the IFC file from Bonsai using **Save Project**.
+   | A3 example column | Code 2 expects |
+   | --- | --- |
+   | Room Number | `room_number` |
+   | Occupancy | `occupancy` |
+   | Supply Airflow (L/s) | `supply_airflow_ls` |
+   | Temperature (°C) | `temperature_c` |
 
-   > **Important:** Code 2 updates the model in memory. Save the IFC file after running the script so that Code 1 can read the changes from the saved file.
+4. **Run Code 2.** Set `IFC_IN` to the original IFC, `CSV_IN` to the prepared CSV and `IFC_OUT` to a different local IFC filename. Run the script in Blender → Scripting. It writes the updated model to `IFC_OUT`.
+5. **Verify the import with Code 1.** Open the IFC written by Code 2 in Bonsai and run Code 1 again. Compare the new CSV with the first export. If a value differs from what you imported, check `Custom_RoomClimateData` on the relevant room in Bonsai. Code 1 uses that set as a fallback when it does not find the value in another property set.
+6. **Run the ventilation check.** Use the updated IFC as the input for the A4 checker. Follow the instructions below to configure the fields and review the results.
 
-5. **Verify the import by running Code 1 again.** Update the IFC input path in Code 1 to point to the file you just saved. Run Code 1 again in Blender → Scripting. Use a different CSV output filename if you want to keep the first export for comparison.
-
-6. **Check the result in Excel.** Open the CSV from the second run of Code 1. Check that the imported values appear on the intended rooms. If a value is still missing, confirm that Code 1 searches for that property in the imported `Custom_RoomClimateData` property set.
-
-7. **Check the values against the selected criteria.**
-   - **Indoor temperature:** Where suitable temperature data are available, use the relevant Category II criteria from DS/EN 16798-1.
-   - **Ventilation:** Run the [automated ventilation check](#run-the-ventilation-check) on the saved IFC. It calculates `q_required = 7 × N + 0.7 × A [L/s]`, where `N` is the design occupancy and `A` is the floor area in m². Open `results.csv` to see how the documented design supply airflow compares with the calculated requirement for each selected room. Temperature data can be used to demonstrate the import workflow. The ventilation check needs area, design occupancy and documented design supply airflow.
-
-8. **Suggest improvements where the results show a shortfall.**
-   - **Passive measures for temperature issues:** solar shading, night ventilation, thermal mass, improved insulation or airtightness, depending on the cause.
-   - **Active measures:** adjusted heating or cooling setpoints, additional heating or cooling capacity, or increased supply airflow where the ventilation check identifies a shortfall.
-
-### Code and example data
-
-- [Code 1 – Find indoor temperatures](bonsai/code_1.py)
-- [Code 2 – Import the CSV into the model](bonsai/code_2.py)
-
-[IndoorClimate_import.csv](bonsai/IndoorClimate_import.csv) contains mock data for rooms in Building #2601. These values are for demonstrating the workflow. Use documented project values when assessing the actual building.
-
-### Tutorial formats
-
-- Markdown instructions (this README)
-- [Video walkthrough](https://youtu.be/Jzvi-XgDxLw)
-
-See the [A3 Teach section](../A3/) for an explanation of how the scripts work.
+See the [A3 Teach section](../A3/) and the [video walkthrough](https://youtu.be/Jzvi-XgDxLw) for the tutorial background.
 
 ### Run the ventilation check
 
@@ -97,6 +81,14 @@ If the IFC already contains the necessary room data, you can start here. Use the
    ```
 
    Open `ifc_fields.csv` in the new results folder. Confirm the field names and units for area, design occupancy and design supply airflow. Set each IFC field in `settings.py` as `("SetName", "FieldName")`. Set `AIRFLOW_FIELD` and `AIRFLOW_UNIT` if the supply airflow is stored in the IFC.
+
+   To use the occupancy and airflow imported by A3 Code 2, set:
+
+   ```python
+   OCCUPANCY_FIELD = ("Custom_RoomClimateData", "DesignOccupancy")
+   AIRFLOW_FIELD = ("Custom_RoomClimateData", "DesignSupplyAirflow_Ls")
+   AIRFLOW_UNIT = "L/s"
+   ```
 
 3. **Select the rooms.** Copy the generated `room_inputs.csv` to `A4/`. Enter `yes` for offices and meeting rooms in the A2 scope, `no` for excluded rooms, and leave the field blank for rooms still under review. Keep each `GlobalId` unchanged. Clear the numeric cells for values you want the checker to read from the IFC. Enter any documented supplementary values in the CSV together with their `source`. If you enter `design_airflow`, also specify `airflow_unit`.
 
@@ -158,8 +150,8 @@ If the required data is in separate design documentation or another model, assoc
 
 | Problem | What to check |
 | --- | --- |
-| Code 2 cannot match a room | Check the exact value of `IfcSpace.Name` and the CSV's `Room Number` column. |
-| Imported values are missing in the second Code 1 export | Save the IFC in Bonsai, check the IFC input path in Code 1 and confirm it reads the imported property names. |
+| Code 2 cannot match a room | Check the exact value of `IfcSpace.Name` and the CSV's `room_number` column. |
+| Imported values are missing in the second Code 1 export | Open the IFC written to `IFC_OUT` in Bonsai. Check the imported property set on the room if another property set supplies the value shown in the CSV. |
 | A CSV will not write or opens in one column | Close it in Excel before rerunning. Use UTF-8 and select the separator used by that CSV. |
 | The checker finds no rooms | Select an IFC containing `IfcSpace` objects. |
 | All rooms show `Review scope` | Set the room scope in `room_inputs.csv` and pass the file with `--data`. |
