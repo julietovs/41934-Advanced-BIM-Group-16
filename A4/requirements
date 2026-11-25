@@ -1,0 +1,7 @@
+# Opens the IFC model and reads its rooms (IfcSpace) and their properties. 
+# This package was already included in the course template.
+ifcopenshell==0.9.0.post1
+
+# Generated the IDS file when the tool is run with --ids
+# This package was added for our A4 tool.
+ifctester==0.9.0
