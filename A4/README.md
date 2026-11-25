@@ -40,7 +40,7 @@ The result includes the room identifier, inputs and their sources, required and 
 
 ### Step by step
 
-1. **Run Code 1.** Open the original IFC in Bonsai. Copy Code 1 into Blender → Scripting, set `outputFolder` to a local folder and run the script.
+1. **Run Code 1.** Open the original IFC in Bonsai. Copy Code 1 into Blender → Scripting, replace the example `outputFolder` path with a writable folder on your computer and run the script. It saves `IndoorClimate_<timestamp>.csv` and prints the path in the console.
 2. **Review the CSV.** Check which rooms are missing design occupancy or supply airflow. Use the [A2 BPMN diagram](../A2/IMG/Ventilation_tool.svg) to identify the relevant path. If the IFC already contains the required data, continue directly to the [ventilation check](#run-the-ventilation-check).
 3. **Prepare the import CSV.** The value in `room_number` must match the room's `IfcSpace.Name`. Use the following column names for Code 2. Leave any unavailable values blank.
 
@@ -58,7 +58,7 @@ The result includes the room identifier, inputs and their sources, required and 
    | Temperature (°C) | `temperature_c` |
 
 4. **Run Code 2.** Set `IFC_IN` to the original IFC, `CSV_IN` to the prepared CSV and `IFC_OUT` to a different local IFC filename. Run the script in Blender → Scripting. It writes the updated model to `IFC_OUT`.
-5. **Verify the import with Code 1.** Open the IFC written by Code 2 in Bonsai and run Code 1 again. Compare the new CSV with the first export. If a value differs from what you imported, check `Custom_RoomClimateData` on the relevant room in Bonsai. Code 1 uses that set as a fallback when it does not find the value in another property set.
+5. **Verify the import with Code 1.** Open the IFC written by Code 2 in Bonsai and run Code 1 again. Compare the new CSV with the first export. Code 1 uses `Custom_RoomClimateData` as a fallback for each missing value. A value found in another property set, including `0`, can take precedence over the imported value. If the CSV still shows an old value, check the imported property directly on the room in Bonsai.
 6. **Run the ventilation check.** Use the updated IFC as the input for the A4 checker. Follow the instructions below to configure the fields and review the results.
 
 See the [A3 Teach section](../A3/) and the [video walkthrough](https://youtu.be/Jzvi-XgDxLw) for the tutorial background.
@@ -152,7 +152,7 @@ If the required data is in separate design documentation or another model, assoc
 | --- | --- |
 | Code 2 cannot match a room | Check the exact value of `IfcSpace.Name` and the CSV's `room_number` column. |
 | Imported values are missing in the second Code 1 export | Open the IFC written to `IFC_OUT` in Bonsai. Check the imported property set on the room if another property set supplies the value shown in the CSV. |
-| A CSV will not write or opens in one column | Close it in Excel before rerunning. Use UTF-8 and select the separator used by that CSV. |
+| A CSV will not write or opens in one column | Check that `outputFolder` is writable and close the CSV in Excel before rerunning. Use UTF-8 and select the separator used by that CSV. |
 | The checker finds no rooms | Select an IFC containing `IfcSpace` objects. |
 | All rooms show `Review scope` | Set the room scope in `room_inputs.csv` and pass the file with `--data`. |
 | A selected room shows `Insufficient data` | Read its notes in `results.csv` and check the property mapping, units or CSV references. |
